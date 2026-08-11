@@ -1,0 +1,2672 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>THE SYSTEM</title>
+<style>
+  :root{
+    --bg:#050810;
+    --panel:#0a1120;
+    --panel2:#0d1830;
+    --line:#1c3a5e;
+    --glow:#3fd0ff;
+    --glow-dim:#1e6b8c;
+    --purple:#7b5cff;
+    --text:#c9e8ff;
+    --text-dim:#5f83a3;
+    --danger:#ff4b5c;
+    --gold:#ffd257;
+    --teal:#2de8b0;
+    --pink:#ff7ab8;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:'Consolas','Courier New',monospace;min-height:100%;}
+  body{padding:18px 14px 60px;}
+  .wrap{max-width:640px;margin:0 auto;}
+
+  .panel{
+    position:relative;
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+    border:1px solid var(--line);
+    box-shadow:0 0 0 1px rgba(63,208,255,.08), 0 0 24px rgba(63,208,255,.06) inset,
+      0 0 30px rgba(63,208,255,.05);
+    padding:16px 18px;
+    margin-bottom:14px;
+    clip-path:polygon(0 8px,8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);
+  }
+  .panel::before{
+    content:'';position:absolute;inset:0;pointer-events:none;
+    border:1px solid rgba(63,208,255,.15);
+    clip-path:polygon(0 8px,8px 0,100% 0,100% calc(100% - 8px),calc(100% - 8px) 100%,0 100%);
+  }
+  .panel.danger{border-color:var(--danger);box-shadow:0 0 0 1px rgba(255,75,92,.15), 0 0 30px rgba(255,75,92,.15) inset;}
+  .panel.boss{border-color:var(--purple);}
+
+  .title{
+    text-align:center;font-size:22px;letter-spacing:6px;color:var(--glow);
+    text-shadow:0 0 12px rgba(63,208,255,.7);margin:6px 0 2px;font-weight:700;
+  }
+  .subtitle{text-align:center;color:var(--text-dim);font-size:11px;letter-spacing:3px;margin-bottom:16px;}
+
+  .nav-row{display:flex;gap:10px;margin-bottom:16px;}
+  .nav-btn{
+    flex:1;background:rgba(63,208,255,.06);border:1px solid var(--glow-dim);color:var(--glow);
+    font-family:inherit;font-size:12px;letter-spacing:2px;padding:10px 8px;cursor:pointer;
+    text-align:center;font-weight:700;
+  }
+  .nav-btn:hover{background:rgba(63,208,255,.14);}
+  .mini-btn{
+    background:none;border:1px solid var(--purple);color:var(--purple);font-family:inherit;
+    font-size:10px;letter-spacing:1px;padding:4px 8px;cursor:pointer;font-weight:700;
+  }
+  .mini-btn:hover{background:rgba(123,92,255,.12);}
+
+  .header-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;}
+  .rank-badge{
+    font-size:26px;font-weight:700;color:var(--gold);text-shadow:0 0 10px rgba(255,210,87,.6);
+    border:1px solid var(--gold);padding:2px 12px;border-radius:2px;
+  }
+  .lvl{font-size:15px;color:var(--glow);letter-spacing:1px;}
+  .lvl b{font-size:20px;}
+  .title-tag{text-align:center;font-size:12px;color:var(--purple);letter-spacing:2px;margin-bottom:10px;
+    text-shadow:0 0 8px rgba(123,92,255,.6);}
+
+  .xpbar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--text-dim);margin:8px 0 4px;letter-spacing:1px;}
+  .xpbar-outer{height:14px;background:#040810;border:1px solid var(--line);position:relative;overflow:hidden;}
+  .xpbar-inner{height:100%;background:linear-gradient(90deg,var(--glow-dim),var(--glow));
+    box-shadow:0 0 10px rgba(63,208,255,.8);transition:width .5s ease;}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+  .stat-box{border:1px solid var(--line);padding:8px 6px;background:rgba(63,208,255,.03);text-align:center;}
+  .stat-name{font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+  .stat-val{font-size:18px;color:var(--glow);font-weight:700;}
+
+  .streak-row{display:flex;gap:10px;margin-top:14px;}
+  .streak-box{flex:1;text-align:center;border:1px solid var(--line);padding:8px;background:rgba(255,210,87,.03);}
+  .streak-num{font-size:22px;color:var(--gold);font-weight:700;}
+  .streak-label{font-size:10px;color:var(--text-dim);letter-spacing:2px;}
+
+  .section-title{font-size:13px;color:var(--glow);letter-spacing:3px;margin-bottom:10px;
+    border-bottom:1px solid var(--line);padding-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+  .section-title.danger-text{color:var(--danger);}
+  .section-title.boss-text{color:var(--purple);}
+  .section-title.todo-text{color:var(--purple);}
+  .week-tag{font-size:10px;color:var(--text-dim);letter-spacing:1px;}
+
+  .day-banner{font-size:12px;color:var(--gold);letter-spacing:2px;margin-bottom:12px;text-align:center;
+    border:1px solid var(--line);padding:6px;background:rgba(255,210,87,.04);}
+
+  .quest{
+    display:flex;align-items:center;gap:10px;padding:10px 8px;border:1px solid var(--line);
+    margin-bottom:8px;background:rgba(255,255,255,.01);cursor:pointer;user-select:none;
+    transition:all .2s;
+  }
+  .quest.done{border-color:var(--glow);background:rgba(63,208,255,.08);}
+  .quest.penalty{border-color:var(--danger);background:rgba(255,75,92,.06);}
+  .quest.penalty.done{border-color:var(--danger);background:rgba(255,75,92,.15);}
+  .quest.rare{border-color:var(--gold);background:rgba(255,210,87,.06);}
+  .quest.rare .quest-check{border-color:var(--gold);color:var(--gold);}
+  .quest.rare.done{background:rgba(255,210,87,.16);}
+  .quest.rare.done .quest-check{background:var(--gold);color:#1a1200;box-shadow:0 0 8px var(--gold);}
+  .quest-check{width:20px;height:20px;border:1px solid var(--glow-dim);flex:0 0 auto;
+    display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--glow);}
+  .quest.penalty .quest-check{border-color:var(--danger);color:var(--danger);}
+  .quest.done .quest-check{background:var(--glow);color:#00131a;box-shadow:0 0 8px var(--glow);}
+  .quest.penalty.done .quest-check{background:var(--danger);color:#1a0000;box-shadow:0 0 8px var(--danger);}
+  .quest-name{flex:1;font-size:14px;}
+  .quest.done .quest-name{color:var(--text-dim);text-decoration:line-through;}
+  .quest-meta{font-size:11px;color:var(--text-dim);}
+  .quest-xp{font-size:11px;color:var(--gold);white-space:nowrap;}
+
+  /* To-Do / Reminders — reuses the .quest look with a purple accent (like
+     the boss panel) and adds a delete (✕) control, since reminders are
+     free-form notes rather than scored quests. Age-based color is applied
+     inline via JS (green when fresh, fading to dark red by day 5). */
+  .quest.todo{cursor:pointer;}
+  .quest.todo.done{border-color:var(--purple);background:rgba(123,92,255,.1);}
+  .quest.todo .quest-check{border-color:var(--purple);color:var(--purple);}
+  .quest.todo.done .quest-check{background:var(--purple);color:#0a0620;box-shadow:0 0 8px var(--purple);}
+  .todo-del{color:var(--danger);font-size:14px;padding:2px 6px;opacity:.6;flex:0 0 auto;}
+  .todo-del:hover{opacity:1;}
+  .todo-add-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+  .todo-add-row input{
+    flex:1;min-width:160px;background:#040810;border:1px solid var(--line);color:var(--text);
+    font-family:inherit;font-size:13px;padding:8px;outline:none;
+  }
+  .todo-add-row input:focus{border-color:var(--purple);}
+  .todo-add-btn{
+    background:var(--purple);color:#0a0620;border:none;font-family:inherit;
+    font-weight:700;letter-spacing:1px;padding:9px 14px;cursor:pointer;font-size:12px;
+  }
+  .todo-add-btn:hover{filter:brightness(1.2);}
+  .todo-count{font-size:10px;color:var(--text-dim);letter-spacing:1px;}
+  .todo-age{font-size:10px;color:var(--text-dim);white-space:nowrap;}
+
+  /* Salah tracker — same quest look, green accent, resets each calendar day */
+  .quest.salah{cursor:pointer;}
+  .quest.salah.done{border-color:#3fc76b;background:rgba(63,199,107,.12);}
+  .quest.salah .quest-check{border-color:#3fc76b;color:#3fc76b;}
+  .quest.salah.done .quest-check{background:#3fc76b;color:#04220f;box-shadow:0 0 8px #3fc76b;}
+  .salah-summary-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text-dim);
+    border-top:1px solid var(--line);padding-top:8px;margin-top:4px;letter-spacing:1px;}
+  .salah-summary-row b{color:var(--gold);}
+
+  /* Expenses */
+  .expense-add-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+  .expense-add-row input[type="number"]{
+    width:110px;background:#040810;border:1px solid var(--line);color:var(--text);
+    font-family:inherit;font-size:13px;padding:8px;outline:none;
+  }
+  .expense-add-row select{
+    background:#040810;border:1px solid var(--line);color:var(--text);
+    font-family:inherit;font-size:13px;padding:8px;outline:none;
+  }
+  .expense-add-row input[type="text"]{
+    flex:1;min-width:120px;background:#040810;border:1px solid var(--line);color:var(--text);
+    font-family:inherit;font-size:13px;padding:8px;outline:none;
+  }
+  .expense-add-row input:focus, .expense-add-row select:focus{border-color:var(--purple);}
+  .expense-total-row{
+    display:flex;justify-content:space-between;font-size:13px;color:var(--gold);
+    border-top:1px solid var(--line);padding-top:8px;margin-bottom:10px;font-weight:700;letter-spacing:1px;
+  }
+  .expense-item{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--line);
+    margin-bottom:6px;background:rgba(255,255,255,.01);}
+  .expense-item .exp-cat{flex:1;font-size:13px;}
+  .expense-item .exp-time{font-size:10px;color:var(--text-dim);white-space:nowrap;}
+  .expense-item .exp-amt{font-size:13px;color:var(--gold);font-weight:700;white-space:nowrap;}
+  .expense-day-row{border:1px solid var(--line);padding:10px;margin-bottom:10px;background:rgba(63,208,255,.03);}
+  .expense-day-head{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;}
+  .expense-day-head .d{color:var(--text-dim);}
+  .expense-day-head .t{color:var(--gold);font-weight:700;}
+  .expense-day-breakdown{font-size:11px;color:var(--text-dim);line-height:1.5;}
+
+  /* Diary */
+  #diaryInput{
+    width:100%;background:#040810;border:1px solid var(--line);color:var(--text);
+    font-family:inherit;font-size:13px;padding:10px;outline:none;resize:vertical;
+  }
+  #diaryInput:focus{border-color:var(--purple);}
+  .diary-save-row{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:8px;}
+  .diary-status{font-size:11px;color:var(--glow-dim);letter-spacing:1px;}
+  .diary-entry{border:1px solid var(--line);padding:10px;margin-bottom:10px;background:rgba(123,92,255,.03);}
+  .diary-entry-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .diary-entry-text{font-size:13px;color:var(--text);line-height:1.5;white-space:pre-wrap;}
+
+  .penalty-warn{font-size:12px;color:var(--danger);margin-bottom:10px;line-height:1.5;letter-spacing:.5px;}
+  .rest-msg{color:var(--text-dim);font-size:12px;text-align:center;padding:14px;line-height:1.6;}
+
+  .boss-locked{color:var(--text-dim);font-size:12px;text-align:center;padding:10px;}
+  .boss-reward-row{display:flex;justify-content:space-between;font-size:12px;color:var(--gold);margin-top:8px;}
+  .badge-row{display:flex;gap:10px;margin-top:12px;}
+  .badge-box{flex:1;text-align:center;border:1px solid var(--purple);padding:8px;background:rgba(123,92,255,.05);}
+  .badge-num{font-size:20px;color:var(--purple);font-weight:700;}
+  .badge-label{font-size:9px;color:var(--text-dim);letter-spacing:1px;}
+
+  .history{display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;}
+  .hist-row{display:flex;justify-content:space-between;font-size:12px;padding:6px 8px;
+    border-left:2px solid var(--glow-dim);background:rgba(255,255,255,.015);}
+  .hist-date{color:var(--text-dim);}
+  .hist-xp{color:var(--gold);}
+
+  .heatmap{display:grid;grid-template-columns:repeat(15,1fr);gap:4px;margin-top:4px;}
+  .heat-cell{aspect-ratio:1;background:#0c1830;border:1px solid var(--line);border-radius:2px;}
+  .heat-cell[data-lvl="1"]{background:rgba(63,208,255,.2);}
+  .heat-cell[data-lvl="2"]{background:rgba(63,208,255,.45);}
+  .heat-cell[data-lvl="3"]{background:rgba(63,208,255,.75);box-shadow:0 0 6px rgba(63,208,255,.6);}
+  .heatmap-label{font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-top:8px;text-align:right;}
+
+  .status-popup-overlay{
+    position:fixed;inset:0;background:rgba(2,6,14,.82);z-index:150;
+    display:flex;align-items:center;justify-content:center;
+    opacity:0;pointer-events:none;transition:opacity .35s;
+  }
+  .status-popup-overlay.show{opacity:1;pointer-events:all;}
+  .status-popup-frame{
+    position:relative;width:min(88vw,380px);
+    background:linear-gradient(180deg,rgba(10,17,32,.97),rgba(13,24,48,.97));
+    border:1px solid rgba(63,208,255,.45);
+    box-shadow:0 0 50px rgba(63,208,255,.3), 0 0 0 1px rgba(63,208,255,.12) inset;
+    padding:26px 22px 20px;
+    transform:scale(.92); transition:transform .35s;
+  }
+  .status-popup-overlay.show .status-popup-frame{transform:scale(1);}
+  .corner{position:absolute;width:22px;height:22px;pointer-events:none;}
+  .corner.tl{top:-1px;left:-1px;border-top:2px solid var(--glow);border-left:2px solid var(--glow);}
+  .corner.tr{top:-1px;right:-1px;border-top:2px solid var(--glow);border-right:2px solid var(--glow);}
+  .corner.bl{bottom:-1px;left:-1px;border-bottom:2px solid var(--glow);border-left:2px solid var(--glow);}
+  .corner.br{bottom:-1px;right:-1px;border-bottom:2px solid var(--glow);border-right:2px solid var(--glow);}
+  .status-popup-title{
+    text-align:center;font-size:14px;letter-spacing:6px;color:var(--glow);
+    text-shadow:0 0 12px rgba(63,208,255,.8);border-bottom:1px solid rgba(63,208,255,.3);
+    padding-bottom:12px;margin-bottom:14px;font-weight:700;
+  }
+  .status-popup-big{
+    text-align:center;font-size:38px;color:#fff;font-weight:700;
+    text-shadow:0 0 20px rgba(63,208,255,.9);margin-bottom:2px;letter-spacing:2px;
+  }
+  .status-popup-sub{text-align:center;font-size:11px;color:var(--text-dim);letter-spacing:2px;margin-bottom:14px;}
+  .status-popup-rows{display:grid;grid-template-columns:1fr 1fr;gap:9px 18px;}
+  .status-popup-row{
+    display:flex;justify-content:space-between;font-size:12px;
+    border-bottom:1px solid rgba(63,208,255,.15);padding-bottom:5px;
+  }
+  .status-popup-row .lbl{color:var(--text-dim);letter-spacing:1px;}
+  .status-popup-row .val{color:var(--gold);font-weight:700;}
+  .status-popup-hint{text-align:center;font-size:9px;color:var(--text-dim);letter-spacing:1px;margin-top:16px;opacity:.6;}
+
+  .rankup-overlay{
+    position:fixed;inset:0;background:rgba(2,5,12,.92);z-index:160;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    opacity:0;pointer-events:none;transition:opacity .5s;
+  }
+  .rankup-overlay.show{opacity:1;pointer-events:all;}
+  .rankup-overlay .corner{width:32px;height:32px;}
+  .rankup-overlay .corner.tl{top:6%;left:6%;}
+  .rankup-overlay .corner.tr{top:6%;right:6%;}
+  .rankup-overlay .corner.bl{bottom:6%;left:6%;}
+  .rankup-overlay .corner.br{bottom:6%;right:6%;}
+  .rankup-overlay .big{
+    font-size:15vw;color:var(--gold);text-shadow:0 0 40px rgba(255,210,87,.9);
+    font-weight:700;letter-spacing:6px;animation:pulse 1.2s ease-in-out infinite;
+  }
+  .rankup-overlay .arrow{font-size:20px;color:var(--text-dim);letter-spacing:4px;margin:10px 0;}
+  .rankup-overlay .caption{font-size:13px;color:var(--glow);letter-spacing:4px;margin-top:14px;}
+  @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.08);}}
+
+  /* Full-page overlays: Progress log, Diary archive, Salah progress, Weight progress */
+  .page-overlay{
+    position:fixed;inset:0;background:var(--bg);z-index:140;
+    overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .3s;
+    padding:18px 14px 60px;
+  }
+  .page-overlay.show{opacity:1;pointer-events:all;}
+  .page-inner{max-width:640px;margin:0 auto;}
+  .page-header{
+    display:flex;justify-content:space-between;align-items:center;
+    font-size:16px;letter-spacing:4px;color:var(--glow);text-shadow:0 0 12px rgba(63,208,255,.7);
+    border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:16px;font-weight:700;
+  }
+  .page-close{
+    font-size:11px;color:var(--danger);letter-spacing:1px;cursor:pointer;border:1px solid var(--danger);
+    padding:6px 10px;font-weight:700;
+  }
+  .page-close:hover{background:rgba(255,75,92,.12);}
+
+  .empty-msg{color:var(--text-dim);font-size:12px;text-align:center;padding:14px;}
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-thumb{background:var(--glow-dim);}
+
+  /* Quick status strip — glanceable summary of today, right under the title */
+  .quickstrip{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .qs-item{flex:1;min-width:70px;text-align:center;border:1px solid var(--line);padding:7px 4px;
+    background:rgba(255,255,255,.02);font-size:10px;letter-spacing:.5px;}
+  .qs-item .qs-val{font-size:14px;font-weight:700;margin-bottom:2px;}
+  .qs-item.ok{border-color:var(--glow);}
+  .qs-item.ok .qs-val{color:var(--glow);}
+  .qs-item.pending .qs-val{color:var(--text-dim);}
+
+  /* Daily quote banner */
+  .quote-banner{font-size:11px;color:var(--text-dim);text-align:center;font-style:italic;
+    padding:10px 14px;margin-bottom:14px;border:1px solid var(--line);
+    background:rgba(123,92,255,.04);line-height:1.6;}
+  .quote-banner b{color:var(--purple);font-style:normal;}
+
+  .rank-emblem{font-size:15px;margin-right:6px;}
+
+  /* Progress / capacity bars (water, sleep target, etc.) reuse xpbar look with a custom color */
+  .bar-outer{height:12px;background:#040810;border:1px solid var(--line);position:relative;overflow:hidden;margin:8px 0;}
+  .bar-inner{height:100%;transition:width .4s ease;}
+  .water-quick-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+  .water-quick-btn{
+    flex:1;min-width:80px;background:rgba(45,232,176,.08);border:1px solid var(--teal);color:var(--teal);
+    font-family:inherit;font-size:12px;letter-spacing:1px;padding:9px 6px;cursor:pointer;font-weight:700;
+  }
+  .water-quick-btn:hover{background:rgba(45,232,176,.18);}
+
+  .pr-row{display:flex;align-items:center;gap:10px;padding:8px;border:1px solid var(--line);
+    margin-bottom:6px;background:rgba(255,255,255,.01);}
+  .pr-row .pr-ex{flex:1;font-size:13px;}
+  .pr-row .pr-val{font-size:13px;color:var(--gold);font-weight:700;white-space:nowrap;}
+  .pr-row.best{border-color:var(--gold);background:rgba(255,210,87,.06);}
+  .pr-add-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+  .pr-add-row input{background:#040810;border:1px solid var(--line);color:var(--text);
+    font-family:inherit;font-size:13px;padding:8px;outline:none;}
+  .pr-add-row input:focus{border-color:var(--gold);}
+  .pr-add-row input#prExercise{flex:2;min-width:120px;}
+  .pr-add-row input#prWeight{flex:1;min-width:70px;}
+  .pr-add-row input#prReps{flex:1;min-width:60px;}
+
+  .habit-row{display:flex;flex-direction:column;gap:4px;padding:8px;border:1px solid var(--line);
+    margin-bottom:6px;background:rgba(255,255,255,.01);}
+  .habit-row-head{display:flex;justify-content:space-between;font-size:12px;}
+  .habit-row-head .pct{color:var(--purple);font-weight:700;}
+  .habit-bar-outer{height:6px;background:#040810;border:1px solid var(--line);overflow:hidden;}
+  .habit-bar-inner{height:100%;background:var(--purple);}
+
+  .export-btn{
+    width:100%;background:rgba(63,208,255,.06);border:1px solid var(--glow-dim);color:var(--glow);
+    font-family:inherit;font-size:12px;letter-spacing:2px;padding:12px 8px;cursor:pointer;font-weight:700;
+  }
+  .export-btn:hover{background:rgba(63,208,255,.14);}
+
+  .quest:active, .nav-btn:active, .todo-add-btn:active, .water-quick-btn:active, .export-btn:active{
+    transform:scale(.98);
+  }
+
+  /* ============================================================
+     VISUAL LAYER — System HUD ambience, boot sequence, toasts,
+     settings, micro-interactions. Purely additive: none of this
+     touches quest/XP/rank/streak logic, only how it's presented.
+     ============================================================ */
+
+  /* background ambience: faint grid + vignette + slow scanline */
+  body::before{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:
+      linear-gradient(rgba(63,208,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(63,208,255,.035) 1px, transparent 1px);
+    background-size:34px 34px;
+    -webkit-mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 90%);
+            mask-image:radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 90%);
+  }
+  body::after{
+    content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse 70% 40% at 50% -10%, rgba(63,208,255,.06), transparent 60%);
+  }
+  .scanline{
+    position:fixed;left:0;right:0;height:2px;pointer-events:none;z-index:1;
+    background:linear-gradient(90deg, transparent, rgba(63,208,255,.35), transparent);
+    animation:scanmove 7s linear infinite;
+    opacity:.5;
+  }
+  @keyframes scanmove{0%{top:-2%;}100%{top:102%;}}
+  body.tab-hidden .scanline, body.reduced-motion .scanline{animation-play-state:paused;opacity:0;}
+  .wrap{position:relative;z-index:2;}
+
+  /* corner HUD brackets, reusable on any panel */
+  .hud-corners{position:absolute;inset:0;pointer-events:none;}
+  .hud-corners span{position:absolute;width:14px;height:14px;}
+  .hud-corners .c-tl{top:-1px;left:-1px;border-top:1px solid rgba(63,208,255,.55);border-left:1px solid rgba(63,208,255,.55);}
+  .hud-corners .c-tr{top:-1px;right:-1px;border-top:1px solid rgba(63,208,255,.55);border-right:1px solid rgba(63,208,255,.55);}
+  .hud-corners .c-bl{bottom:-1px;left:-1px;border-bottom:1px solid rgba(63,208,255,.55);border-left:1px solid rgba(63,208,255,.55);}
+  .hud-corners .c-br{bottom:-1px;right:-1px;border-bottom:1px solid rgba(63,208,255,.55);border-right:1px solid rgba(63,208,255,.55);}
+  .panel.boss .hud-corners .c-tl, .panel.boss .hud-corners .c-tr,
+  .panel.boss .hud-corners .c-bl, .panel.boss .hud-corners .c-br{border-color:rgba(123,92,255,.6);}
+  .panel.boss.boss-active{animation:bossPulse 2.6s ease-in-out infinite;}
+  @keyframes bossPulse{0%,100%{box-shadow:0 0 0 1px rgba(123,92,255,.15), 0 0 24px rgba(123,92,255,.12) inset;}
+    50%{box-shadow:0 0 0 1px rgba(123,92,255,.35), 0 0 34px rgba(123,92,255,.28) inset;}}
+
+  /* boot sequence */
+  #bootOverlay{
+    position:fixed;inset:0;background:#020509;z-index:500;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    transition:opacity .5s ease;
+  }
+  #bootOverlay.hide{opacity:0;pointer-events:none;}
+  #bootOverlay .boot-logo{font-size:20px;letter-spacing:8px;color:var(--glow);text-shadow:0 0 16px rgba(63,208,255,.8);margin-bottom:22px;font-weight:700;}
+  #bootOverlay .boot-lines{min-height:90px;text-align:center;}
+  #bootOverlay .boot-line{font-size:11px;letter-spacing:2px;color:var(--text-dim);margin-bottom:6px;opacity:0;animation:bootFadeIn .35s forwards;}
+  #bootOverlay .boot-line.done{color:var(--glow-dim);}
+  #bootOverlay .boot-line.final{color:var(--glow);text-shadow:0 0 10px rgba(63,208,255,.7);}
+  @keyframes bootFadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+  #bootOverlay .boot-bar-outer{width:180px;height:2px;background:#0c1830;margin-top:16px;overflow:hidden;}
+  #bootOverlay .boot-bar-inner{height:100%;width:0%;background:var(--glow);box-shadow:0 0 8px rgba(63,208,255,.8);transition:width 1.2s linear;}
+  body.reduced-motion #bootOverlay .boot-line{animation:none;opacity:1;}
+
+  /* toast notification stack (distinct from the big centered status popup) */
+  #toastStack{
+    position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+    width:min(92vw,380px);display:flex;flex-direction:column-reverse;gap:8px;z-index:130;
+    pointer-events:none;
+  }
+  .toast{
+    pointer-events:all;
+    background:linear-gradient(180deg,rgba(10,17,32,.97),rgba(13,24,48,.97));
+    border:1px solid var(--glow-dim);border-left:3px solid var(--glow);
+    padding:9px 12px;font-size:11px;letter-spacing:.5px;
+    box-shadow:0 4px 18px rgba(0,0,0,.4);
+    display:flex;flex-direction:column;gap:2px;
+    animation:toastIn .3s ease forwards;
+    position:relative;overflow:hidden;
+  }
+  .toast .t-title{font-size:10px;letter-spacing:2px;color:var(--glow);font-weight:700;}
+  .toast .t-sub{color:var(--text-dim);font-size:11px;}
+  .toast .t-bar{position:absolute;left:0;bottom:0;height:2px;background:var(--glow);animation:toastTimeout linear forwards;}
+  .toast.success{border-left-color:#3fc76b;} .toast.success .t-title{color:#3fc76b;} .toast.success .t-bar{background:#3fc76b;}
+  .toast.warning{border-left-color:var(--gold);} .toast.warning .t-title{color:var(--gold);} .toast.warning .t-bar{background:var(--gold);}
+  .toast.danger{border-left-color:var(--danger);} .toast.danger .t-title{color:var(--danger);} .toast.danger .t-bar{background:var(--danger);}
+  .toast.rare{border-left-color:var(--purple);} .toast.rare .t-title{color:var(--purple);} .toast.rare .t-bar{background:var(--purple);}
+  @keyframes toastIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes toastOut{from{opacity:1;}to{opacity:0;transform:translateY(6px);}}
+  @keyframes toastTimeout{from{width:100%;}to{width:0%;}}
+  body.reduced-motion .toast{animation:none;}
+
+  /* quest micro-interaction: brief glow ring + tiny burst particles on tap */
+  .quest.burst{animation:questFlash .4s ease;}
+  @keyframes questFlash{0%{box-shadow:0 0 0 0 rgba(63,208,255,.5);}100%{box-shadow:0 0 0 10px rgba(63,208,255,0);}}
+  body.reduced-motion .quest.burst{animation:none;}
+  .mini-particle{position:fixed;width:4px;height:4px;border-radius:50%;background:var(--glow);pointer-events:none;z-index:120;
+    box-shadow:0 0 6px var(--glow);animation:miniParticle .55s ease-out forwards;}
+  @keyframes miniParticle{to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0;}}
+
+  /* settings panel */
+  .settings-row{display:flex;justify-content:space-between;align-items:center;padding:9px 2px;
+    border-bottom:1px solid var(--line);font-size:12px;letter-spacing:.5px;}
+  .settings-row:last-child{border-bottom:none;}
+  .toggle-pill{
+    width:42px;height:22px;border:1px solid var(--glow-dim);border-radius:12px;position:relative;cursor:pointer;
+    background:rgba(255,255,255,.02);flex:0 0 auto;
+  }
+  .toggle-pill::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;
+    background:var(--text-dim);transition:all .2s ease;}
+  .toggle-pill.on{border-color:var(--glow);background:rgba(63,208,255,.12);}
+  .toggle-pill.on::after{left:22px;background:var(--glow);box-shadow:0 0 6px var(--glow);}
+  .settings-row input[type="range"]{width:120px;accent-color:var(--glow);}
+
+  /* ambient mode: dims and calms everything down */
+  body.ambient-mode .panel{box-shadow:none;}
+  body.ambient-mode .scanline{opacity:.15;animation-duration:14s;}
+  body.ambient-mode body::after{opacity:.4;}
+  body.ambient-mode .xpbar-inner{box-shadow:none;}
+
+  @media (prefers-reduced-motion: reduce){
+    .scanline{display:none;}
+    .quest.burst{animation:none;}
+    .toast{animation:none;}
+  }
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div id="bootOverlay">
+  <div class="boot-logo">THE SYSTEM</div>
+  <div class="boot-lines" id="bootLines"></div>
+  <div class="boot-bar-outer"><div class="boot-bar-inner" id="bootBar"></div></div>
+</div>
+<div id="toastStack"></div>
+<div class="wrap">
+
+  <div class="title">THE SYSTEM</div>
+  <div class="subtitle">— DAILY QUEST LOG —</div>
+
+  <div class="quickstrip" id="quickStrip"></div>
+
+  <div class="nav-row">
+    <button class="nav-btn" onclick="openProgress()">📊 VIEW PROGRESS</button>
+    <button class="nav-btn" onclick="openExpenses()">💰 VIEW EXPENSES</button>
+  </div>
+
+  <div class="panel" id="statusPanel">
+    <div class="hud-corners"><span class="c-tl"></span><span class="c-tr"></span><span class="c-bl"></span><span class="c-br"></span></div>
+    <div class="header-row">
+      <div class="lvl">LEVEL <b id="lvlNum">1</b></div>
+      <div class="rank-badge"><span class="rank-emblem" id="rankEmblem">🔰</span><span id="rankBadge">E</span></div>
+    </div>
+    <div class="title-tag" id="titleTag">Novice Hunter</div>
+    <div class="xpbar-label"><span>XP</span><span id="xpText">0 / 100</span></div>
+    <div class="xpbar-outer"><div class="xpbar-inner" id="xpBar" style="width:0%"></div></div>
+
+    <div class="stats-grid" id="statsGrid"></div>
+
+    <div class="streak-row">
+      <div class="streak-box"><div class="streak-num" id="streakNum">0</div><div class="streak-label">DAY STREAK</div></div>
+      <div class="streak-box"><div class="streak-num" id="totalDays">0</div><div class="streak-label">TOTAL DAYS</div></div>
+    </div>
+  </div>
+
+  <div class="panel danger" id="penaltyPanel" style="display:none;">
+    <div class="section-title danger-text">⚠ PENALTY QUEST</div>
+    <div class="penalty-warn">SYSTEM WARNING: You failed to complete yesterday's gym session.<br>Clear the penalty below to lift the warning.</div>
+    <div id="penaltyQuestSlot"></div>
+  </div>
+
+  <div class="panel" id="mainWorkoutPanel">
+    <div class="section-title"><span id="dayTitle">GYM SESSION</span><span class="week-tag" id="weekTag">STREAK 0</span></div>
+    <div class="day-banner" id="dayBanner"></div>
+    <div id="mainQuestList"></div>
+    <div class="todo-add-row" style="margin-top:12px;">
+      <input type="text" id="gymMuscleInput" placeholder="Muscle group / focus (e.g. Chest & Triceps)">
+      <input type="number" id="gymDurationInput" placeholder="Duration (min)" style="max-width:120px;">
+      <button class="todo-add-btn" onclick="saveGymLog()">SAVE LOG</button>
+    </div>
+    <div class="diary-status" id="gymLogStatus" style="margin-top:6px;"></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">
+      <span>SIDE QUESTS</span>
+      <button class="mini-btn" onclick="openHabitStats()">HABIT STATS</button>
+    </div>
+    <div id="sideQuestList"></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">DAILY SYSTEM REQUIREMENTS</div>
+    <div id="reqList"></div>
+  </div>
+
+  <div class="panel danger" id="prayerWarnPanel" style="display:none;">
+    <div class="section-title danger-text">⚠ PRAYER REMINDER</div>
+    <div class="penalty-warn" id="prayerWarnText"></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title todo-text">
+      <span>🕌 DAILY SALAH</span>
+      <button class="mini-btn" onclick="openSalahProgress()">VIEW PROGRESS</button>
+    </div>
+    <div id="salahList"></div>
+    <div class="salah-summary-row"><span>Completed Today</span><b id="salahTodayCount">0 / 5</b></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title todo-text">
+      <span>⚖ DAILY WEIGHT</span>
+      <button class="mini-btn" onclick="openWeightProgress()">VIEW PROGRESS</button>
+    </div>
+    <div class="expense-add-row">
+      <input type="number" id="weightInput" placeholder="Weight (kg)" min="0" step="0.1">
+      <button class="todo-add-btn" onclick="saveWeight()">LOG</button>
+    </div>
+    <div class="expense-total-row">
+      <span>Today's Weight</span>
+      <span id="weightTodayVal">— kg</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title todo-text">
+      <span>😴 SLEEP</span>
+      <button class="mini-btn" onclick="openSleepProgress()">VIEW PROGRESS</button>
+    </div>
+    <div class="pr-add-row">
+      <input type="time" id="sleepBedInput" style="flex:1;min-width:100px;">
+      <input type="time" id="sleepWakeInput" style="flex:1;min-width:100px;">
+      <button class="todo-add-btn" onclick="saveSleep()">LOG</button>
+    </div>
+    <div class="expense-total-row">
+      <span>Last Night</span>
+      <span id="sleepTodayVal">— hrs</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title todo-text">
+      <span>💧 WATER</span>
+      <span class="todo-count" id="waterCount"></span>
+    </div>
+    <div class="bar-outer"><div class="bar-inner" id="waterBar" style="width:0%;background:linear-gradient(90deg,var(--teal),#7fffd4);box-shadow:0 0 8px rgba(45,232,176,.7);"></div></div>
+    <div class="water-quick-row">
+      <button class="water-quick-btn" onclick="addWater(250)">+250ml</button>
+      <button class="water-quick-btn" onclick="addWater(500)">+500ml</button>
+      <button class="water-quick-btn" onclick="addWater(1000)">+1L</button>
+      <button class="water-quick-btn" onclick="resetWater()" style="border-color:var(--danger);color:var(--danger);background:rgba(255,75,92,.06);flex:0 0 auto;">RESET</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title todo-text">
+      <span>🏋 STRENGTH LOG</span>
+      <button class="mini-btn" onclick="openPRProgress()">VIEW PRs</button>
+    </div>
+    <div class="pr-add-row">
+      <input type="text" id="prExercise" placeholder="Exercise (e.g. Bench Press)">
+      <input type="number" id="prWeight" placeholder="kg" min="0" step="0.5">
+      <input type="number" id="prReps" placeholder="reps" min="0" step="1">
+    </div>
+    <button class="todo-add-btn" style="width:100%;" onclick="addPR()">+ LOG SET</button>
+    <div id="prTodayList" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title todo-text">
+      <span>REMINDERS</span>
+      <span class="todo-count" id="todoCount"></span>
+    </div>
+    <div id="todoList"></div>
+    <div class="todo-add-row">
+      <input type="text" id="todoInput" placeholder="Note something to remember..." onkeydown="if(event.key==='Enter')addTodo()">
+      <button class="todo-add-btn" onclick="addTodo()">+ ADD</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title todo-text">
+      <span>DAILY DIARY</span>
+      <button class="mini-btn" onclick="openDiaryArchive()">VIEW ALL</button>
+    </div>
+    <textarea id="diaryInput" rows="4" placeholder="Write something about today..."></textarea>
+    <div class="diary-save-row">
+      <span class="diary-status" id="diaryStatus"></span>
+      <button class="todo-add-btn" onclick="saveDiary()">SAVE ENTRY</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title todo-text">
+      <span>DAILY EXPENSES</span>
+    </div>
+    <div class="expense-add-row">
+      <input type="number" id="expenseAmount" placeholder="Amount ₹" min="0" step="0.01">
+      <select id="expenseCategory" onchange="toggleExpenseOtherInput()">
+        <option value="Food">Food</option>
+        <option value="Travel">Travel</option>
+        <option value="Shopping">Shopping</option>
+        <option value="Bills">Bills</option>
+        <option value="Entertainment">Entertainment</option>
+        <option value="Health">Health</option>
+        <option value="Groceries">Groceries</option>
+        <option value="Other">Other</option>
+      </select>
+      <input type="text" id="expenseOtherInput" placeholder="Specify category..." style="display:none;">
+      <button class="todo-add-btn" onclick="addExpense()">+ ADD</button>
+    </div>
+    <div class="expense-total-row">
+      <span>Today's Total</span>
+      <span id="expenseTodayTotal">₹0</span>
+    </div>
+    <div id="expenseList"></div>
+  </div>
+
+  <div class="panel boss" id="bossPanel">
+    <div class="hud-corners"><span class="c-tl"></span><span class="c-tr"></span><span class="c-bl"></span><span class="c-br"></span></div>
+    <div class="section-title boss-text">⚔ WEEKEND BOSS QUEST <span style="font-size:9px;color:var(--text-dim);">MIND &amp; LIFE</span></div>
+    <div id="bossSlot"></div>
+    <div class="badge-row">
+      <div class="badge-box"><div class="badge-num" id="bossCount">0</div><div class="badge-label">BOSSES DEFEATED</div></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">⚙ SYSTEM SETTINGS</div>
+    <div class="settings-row">
+      <span>SOUND</span>
+      <div class="toggle-pill" id="setSoundToggle" onclick="toggleSetting('sound')"></div>
+    </div>
+    <div class="settings-row">
+      <span>MASTER VOLUME</span>
+      <input type="range" id="setVolumeRange" min="0" max="100" value="70" oninput="setVolume(this.value)">
+    </div>
+    <div class="settings-row">
+      <span>SYSTEM EFFECTS</span>
+      <div class="toggle-pill" id="setEffectsToggle" onclick="toggleSetting('effects')"></div>
+    </div>
+    <div class="settings-row">
+      <span>AMBIENT MODE</span>
+      <div class="toggle-pill" id="setAmbientToggle" onclick="toggleSetting('ambient')"></div>
+    </div>
+    <div class="settings-row">
+      <span>REDUCED MOTION</span>
+      <span style="color:var(--text-dim);font-size:11px;" id="setReducedMotionVal">AUTO</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">ACTIVITY MAP <span style="font-size:10px;color:var(--text-dim);">LAST 45 DAYS</span></div>
+    <div class="heatmap" id="heatmap"></div>
+    <div class="heatmap-label">darker = more quests cleared</div>
+  </div>
+
+  <div class="panel">
+    <div class="section-title">QUEST LOG HISTORY</div>
+    <div class="history" id="historyList"></div>
+  </div>
+
+</div>
+
+<!-- PROGRESS PAGE (full history / stats over time) -->
+<div class="page-overlay" id="progressOverlay">
+  <div class="page-inner">
+    <div class="page-header">
+      <span>📊 PROGRESS LOG</span>
+      <span class="page-close" onclick="closeProgress()">✕ CLOSE</span>
+    </div>
+    <div class="panel">
+      <div class="section-title">HUNTER SUMMARY</div>
+      <div class="stats-grid" id="progressSummaryGrid"></div>
+    </div>
+    <div class="panel">
+      <div class="section-title">ACTIVITY MAP <span style="font-size:10px;color:var(--text-dim);">LAST 45 DAYS</span></div>
+      <div class="heatmap" id="progressHeatmap"></div>
+      <div class="heatmap-label">darker = more quests cleared</div>
+    </div>
+    <div class="panel">
+      <div class="section-title">FULL WORKOUT &amp; ACTIVITY HISTORY</div>
+      <div id="progressHistoryList"></div>
+    </div>
+    <div class="panel">
+      <div class="section-title">DATA</div>
+      <button class="export-btn" onclick="exportData()">⬇ EXPORT ALL DATA (JSON)</button>
+    </div>
+  </div>
+</div>
+
+<!-- SLEEP PROGRESS PAGE -->
+<div class="page-overlay" id="sleepOverlay">
+  <div class="page-inner">
+    <div class="page-header">
+      <span>😴 SLEEP PROGRESS</span>
+      <span class="page-close" onclick="closeSleepProgress()">✕ CLOSE</span>
+    </div>
+    <div class="panel">
+      <div class="section-title">SUMMARY</div>
+      <div class="stats-grid" id="sleepSummaryGrid"></div>
+    </div>
+    <div class="panel">
+      <div class="section-title">SLEEP TREND <span style="font-size:10px;color:var(--text-dim);">LAST 30 ENTRIES</span></div>
+      <div id="sleepChartContainer"></div>
+    </div>
+    <div class="panel">
+      <div class="section-title">DAY-BY-DAY HISTORY</div>
+      <div id="sleepHistoryList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PERSONAL BESTS PAGE -->
+<div class="page-overlay" id="prOverlay">
+  <div class="page-inner">
+    <div class="page-header">
+      <span>🏋 PERSONAL BESTS</span>
+      <span class="page-close" onclick="closePRProgress()">✕ CLOSE</span>
+    </div>
+    <div class="panel">
+      <div class="section-title">ALL-TIME BESTS <span style="font-size:10px;color:var(--text-dim);">BY WEIGHT</span></div>
+      <div id="prBestsList"></div>
+    </div>
+    <div class="panel">
+      <div class="section-title">FULL SET HISTORY</div>
+      <div id="prHistoryList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- HABIT STATS PAGE -->
+<div class="page-overlay" id="habitOverlay">
+  <div class="page-inner">
+    <div class="page-header">
+      <span>📈 HABIT STATS</span>
+      <span class="page-close" onclick="closeHabitStats()">✕ CLOSE</span>
+    </div>
+    <div class="panel">
+      <div class="section-title">COMPLETION RATE <span style="font-size:10px;color:var(--text-dim);">WHEN A HABIT APPEARED AS A SIDE QUEST</span></div>
+      <div id="habitStatsList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPENSE HISTORY PAGE -->
+<div class="page-overlay" id="expenseOverlay">
+  <div class="page-inner">
+    <div class="page-header">
+      <span>💰 EXPENSE HISTORY</span>
+      <span class="page-close" onclick="closeExpenses()">✕ CLOSE</span>
+    </div>
+    <div class="panel">
+      <div class="section-title">SUMMARY</div>
+      <div class="stats-grid" id="expenseSummaryGrid"></div>
+    </div>
+    <div class="panel">
+      <div class="section-title">DAY-BY-DAY HISTORY</div>
+      <div id="expenseHistoryList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- DIARY ARCHIVE PAGE -->
+<div class="page-overlay" id="diaryOverlay">
+  <div class="page-inner">
+    <div class="page-header">
+      <span>📔 DIARY ARCHIVE</span>
+      <span class="page-close" onclick="closeDiaryArchive()">✕ CLOSE</span>
+    </div>
+    <div class="panel">
+      <div id="diaryArchiveList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SALAH PROGRESS PAGE -->
+<div class="page-overlay" id="salahOverlay">
+  <div class="page-inner">
+    <div class="page-header">
+      <span>🕌 SALAH PROGRESS</span>
+      <span class="page-close" onclick="closeSalahProgress()">✕ CLOSE</span>
+    </div>
+    <div class="panel">
+      <div class="section-title">SUMMARY</div>
+      <div class="stats-grid" id="salahSummaryGrid"></div>
+    </div>
+    <div class="panel">
+      <div class="section-title">ACTIVITY MAP <span style="font-size:10px;color:var(--text-dim);">LAST 45 DAYS</span></div>
+      <div class="heatmap" id="salahHeatmap"></div>
+      <div class="heatmap-label">darker = more prayers completed that day</div>
+    </div>
+    <div class="panel">
+      <div class="section-title">DAY-BY-DAY HISTORY</div>
+      <div id="salahHistoryList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- WEIGHT PROGRESS PAGE -->
+<div class="page-overlay" id="weightOverlay">
+  <div class="page-inner">
+    <div class="page-header">
+      <span>⚖ WEIGHT PROGRESS</span>
+      <span class="page-close" onclick="closeWeightProgress()">✕ CLOSE</span>
+    </div>
+    <div class="panel">
+      <div class="section-title">SUMMARY</div>
+      <div class="stats-grid" id="weightSummaryGrid"></div>
+    </div>
+    <div class="panel">
+      <div class="section-title">WEIGHT TREND <span style="font-size:10px;color:var(--text-dim);">LAST 30 ENTRIES</span></div>
+      <div id="weightChartContainer"></div>
+    </div>
+    <div class="panel">
+      <div class="section-title">DAY-BY-DAY HISTORY</div>
+      <div id="weightHistoryList"></div>
+    </div>
+  </div>
+</div>
+
+<div class="status-popup-overlay" id="statusPopupOverlay" onclick="hideStatusPopup()">
+  <div class="status-popup-frame">
+    <div class="corner tl"></div><div class="corner tr"></div>
+    <div class="corner bl"></div><div class="corner br"></div>
+    <div class="status-popup-title" id="popupTitle">QUEST COMPLETE</div>
+    <div class="status-popup-big" id="popupBig" style="display:none;"></div>
+    <div class="status-popup-sub" id="popupSub"></div>
+    <div class="status-popup-rows" id="popupRows"></div>
+  </div>
+</div>
+
+<div class="rankup-overlay" id="rankupOverlay">
+  <div class="corner tl"></div><div class="corner tr"></div>
+  <div class="corner bl"></div><div class="corner br"></div>
+  <div class="arrow">RANK UP</div>
+  <div class="big" id="rankupBig">E → D</div>
+  <div class="caption" id="rankupCaption">A NEW POWER AWAKENS</div>
+</div>
+
+<script>
+/* ============================================================
+   STORAGE ADAPTER
+   ============================================================ */
+const STORAGE_KEY = 'system_tracker_state_v3';
+const hasClaudeStorage = (typeof window !== 'undefined') && !!window.storage;
+
+async function storageGetRaw(key){
+  if(hasClaudeStorage){
+    try{ const res = await window.storage.get(key, false); return res ? res.value : null; }
+    catch(e){ return null; }
+  }
+  return localStorage.getItem(key);
+}
+async function storageSetRaw(key, value){
+  if(hasClaudeStorage){
+    try{ await window.storage.set(key, value, false); }catch(e){ console.error('save failed', e); }
+  } else {
+    try{ localStorage.setItem(key, value); }catch(e){ console.error('localStorage save failed', e); }
+  }
+}
+
+/* ============================================================
+   DATE HELPERS
+   ============================================================ */
+function toISO(d){
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function todayStr(){ return toISO(new Date()); }
+function dayBefore(dateStr){
+  const d = new Date(dateStr); d.setDate(d.getDate()-1); return toISO(d);
+}
+function dayBefore7(dateStr){
+  const d = new Date(dateStr); d.setDate(d.getDate()-7); return toISO(d);
+}
+function daysBetween(a,b){
+  return Math.round((new Date(b)-new Date(a))/(1000*60*60*24));
+}
+function weekdayOf(dateStr){
+  return new Date(dateStr+'T00:00:00').getDay(); // 0=Sun...6=Sat
+}
+
+function hashStr(s){
+  let h = 0;
+  for(let i=0;i<s.length;i++){ h = (Math.imul(31,h) + s.charCodeAt(i))|0; }
+  return h;
+}
+function mulberry32(seed){
+  return function(){
+    seed |= 0; seed = (seed + 0x6D2B79F5)|0;
+    let t = Math.imul(seed ^ seed>>>15, 1|seed);
+    t = (t + Math.imul(t ^ t>>>7, 61|t)) ^ t;
+    return ((t ^ t>>>14)>>>0) / 4294967296;
+  };
+}
+function seededRandom(dateStr, salt){
+  return mulberry32(hashStr(dateStr+'|'+salt));
+}
+function shuffleWithRng(arr, rng){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(rng()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+/* ============================================================
+   DAILY GYM SESSION — replaces the old home-workout weekday split.
+   You train at the gym every day, so this is now a simple 3-part
+   checklist (warm-up / training / cool-down) plus an optional log
+   of what you trained and for how long.
+   ============================================================ */
+const GYM_QUEST_ITEMS = [
+  {id:'gym0', name:'Warm-up (5–10 min)'},
+  {id:'gym1', name:'Main Training / Lifts'},
+  {id:'gym2', name:'Cool-down & Stretch'},
+];
+const GYM_REWARD = {STR:25, STA:15};
+
+function mainWorkoutTotal(){ return GYM_QUEST_ITEMS.length; }
+function isMainComplete(){ return state.mainDone.length >= GYM_QUEST_ITEMS.length; }
+
+/* Weekend Boss Quest — no longer workout-based (you already hit the gym
+   daily). This is a bigger weekly challenge covering mind, discipline,
+   and life admin — the "boss fight" of the week outside the gym. */
+const BOSS_QUEST = { name:'WEEKEND BOSS', reward:{XP:150, DISC:20, INT:15}, exercises:[
+  {name:'Deep Work Sprint — 2 hrs, zero distractions on one project'},
+  {name:'Digital Detox — 4 hrs with no phone or social media'},
+  {name:'Learn Something New — 1 hr (course, tutorial, or book)'},
+  {name:'Declutter & Organize One Space'},
+  {name:'Weekly Reflection — review the week, plan the next'},
+  {name:'Reach Out — call or meet someone you care about'},
+]};
+
+/* ============================================================
+   SIDE QUESTS / RARE QUESTS
+   ============================================================ */
+const SIDE_QUEST_POOL = [
+  {text:'Drink 3L Water', cat:'Health', stat:'VIT'},
+  {text:'Eat 2 Fruits', cat:'Health', stat:'VIT'},
+  {text:'Protein with Every Meal', cat:'Health', stat:'VIT'},
+  {text:'No Soft Drinks', cat:'Health', stat:'VIT'},
+  {text:'Eat Vegetables', cat:'Health', stat:'VIT'},
+  {text:'Sleep 8 Hours', cat:'Recovery', stat:'VIT'},
+  {text:'Stretch 10 Minutes', cat:'Recovery', stat:'VIT'},
+  {text:'Mobility 5 Minutes', cat:'Recovery', stat:'VIT'},
+  {text:'No Junk Food', cat:'Discipline', stat:'DISC'},
+  {text:'No Sugar After Dinner', cat:'Discipline', stat:'DISC'},
+  {text:'Finish Workout Before 7 PM', cat:'Discipline', stat:'DISC'},
+  {text:'No Skipping Meals', cat:'Discipline', stat:'DISC'},
+  {text:'Read 20 Pages', cat:'Mind', stat:'INT'},
+  {text:'Learn for 15 Minutes', cat:'Mind', stat:'INT'},
+  {text:'Journal for 5 Minutes', cat:'Mind', stat:'INT'},
+  {text:'Walk 8,000 Steps', cat:'Movement', stat:'AGI'},
+  {text:'Take the Stairs', cat:'Movement', stat:'AGI'},
+  {text:'Walk After Lunch', cat:'Movement', stat:'AGI'},
+];
+const RARE_QUEST_POOL = [
+  'Cold Shower','Meditate 15 Minutes','Walk 12,000 Steps','Help Someone Today','No Phone After 9 PM'
+];
+const SIDE_QUEST_COUNT = 4;
+const SIDE_QUEST_XP = 10;
+const RARE_QUEST_XP = 40;
+const RARE_QUEST_CHANCE = 0.12;
+
+function generateSideQuests(dateStr, avoidIds){
+  let rng = seededRandom(dateStr, 'side');
+  let picked, attempt = 0;
+  do{
+    const shuffled = shuffleWithRng(SIDE_QUEST_POOL, rng);
+    picked = shuffled.slice(0, SIDE_QUEST_COUNT);
+    rng = seededRandom(dateStr, 'side'+attempt);
+    attempt++;
+  } while(avoidIds && sameCombo(picked.map(p=>p.text), avoidIds) && attempt < 5);
+  return picked.map((p,i)=>({id:'side'+i, text:p.text, cat:p.cat, stat:p.stat, xp:SIDE_QUEST_XP}));
+}
+function sameCombo(a,b){
+  if(!a || !b || a.length!==b.length) return false;
+  const sa = a.slice().sort().join('|'), sb = b.slice().sort().join('|');
+  return sa === sb;
+}
+function generateRareQuest(dateStr){
+  const rngChance = seededRandom(dateStr, 'rare-chance');
+  if(rngChance() > RARE_QUEST_CHANCE) return null;
+  const rng = seededRandom(dateStr, 'rare-pick');
+  const idx = Math.floor(rng()*RARE_QUEST_POOL.length);
+  return {id:'rare0', text:RARE_QUEST_POOL[idx], xp:RARE_QUEST_XP};
+}
+
+const DAILY_REQUIREMENTS = [
+  {id:'req0', text:'Drink 3L Water'},
+  {id:'req1', text:'Sleep 7.5–8 Hours'},
+  {id:'req2', text:'Protein in Every Main Meal'},
+  {id:'req3', text:'Walk 8,000 Steps'},
+  {id:'req4', text:'Stretch 5 Minutes'},
+];
+const REQ_XP = 5;
+
+/* ============================================================
+   SALAH (daily prayers) — plain checklist per day, no XP/stats,
+   resets every calendar day. History kept in state.salah keyed by date.
+   ============================================================ */
+const SALAH_PRAYERS = ['Fajr','Dhuhr','Asr','Maghrib','Isha'];
+
+/* Ayah/hadith reminders shown when a prayer is missed or still pending late in the day */
+const PRAYER_REMINDERS = [
+  {arabic:'إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَوْقُوتًا', translation:'Indeed, prayer has been decreed upon the believers at specified times.'},
+  {arabic:'حَافِظُوا عَلَى الصَّلَوَاتِ وَالصَّلَاةِ الْوُسْطَىٰ وَقُومُوا لِلَّهِ قَانِتِينَ', translation:'Guard strictly the prayers, especially the middle prayer, and stand before Allah devoutly.'},
+  {arabic:'وَأَقِمِ الصَّلَاةَ لِذِكْرِي', translation:'Establish prayer for My remembrance.'},
+  {arabic:'وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ', translation:'Seek help through patience and prayer.'},
+  {arabic:'فَوَيْلٌ لِّلْمُصَلِّينَ ۝ الَّذِينَ هُمْ عَن صَلَاتِهِمْ سَاهُونَ', translation:'So woe to those who pray, but are heedless of their prayer.'},
+  {arabic:'فَخَلَفَ مِن بَعْدِهِمْ خَلْفٌ أَضَاعُوا الصَّلَاةَ وَاتَّبَعُوا الشَّهَوَاتِ', translation:'Then there came after them successors who neglected prayer and followed desires.'},
+  {arabic:'وَالَّذِينَ هُمْ عَلَىٰ صَلَوَاتِهِمْ يُحَافِظُونَ', translation:'And those who carefully maintain their prayers.'},
+  {arabic:'وَأَقِمِ الصَّلَاةَ ۖ إِنَّ الصَّلَاةَ تَنْهَىٰ عَنِ الْفَحْشَاءِ وَالْمُنكَرِ', translation:'Establish prayer. Indeed, prayer restrains from immorality and wrongdoing.'},
+  {arabic:'مَا سَلَكَكُمْ فِي سَقَرَ ۝ قَالُوا لَمْ نَكُ مِنَ الْمُصَلِّينَ', translation:'"What led you into Saqar?" They will say, "We were not among those who prayed."'},
+  {arabic:'إِنَّ أَوَّلَ مَا يُحَاسَبُ بِهِ الْعَبْدُ يَوْمَ الْقِيَامَةِ مِنْ عَمَلِهِ صَلَاتُهُ', translation:'The first deed for which a servant will be held accountable on the Day of Resurrection is his prayer.'},
+  {arabic:'بَيْنَ الرَّجُلِ وَبَيْنَ الشِّرْكِ وَالْكُفْرِ تَرْكُ الصَّلَاةِ', translation:'Between a person and shirk and disbelief is the abandonment of prayer.'},
+  {arabic:'الصَّلَاةُ نُورٌ', translation:'Prayer is light.'},
+  {arabic:'مَفَاتِيحُ الْجَنَّةِ الصَّلَاةُ', translation:'The key to Paradise is prayer.'},
+  {arabic:'مَنْ صَلَّى الصُّبْحَ فَهُوَ فِي ذِمَّةِ اللَّهِ', translation:'Whoever prays Fajr is under the protection of Allah.'},
+  {arabic:'لَا تَتْرُكُوا الصَّلَاةَ', translation:'Do not abandon the prayer.'},
+  {arabic:'الصَّلَاةُ عِمَادُ الدِّينِ', translation:'Prayer is the pillar of the religion.'},
+  {arabic:'مَنْ صَلَّى الْبَرْدَيْنِ دَخَلَ الْجَنَّةَ', translation:'Whoever prays the two cool prayers will enter Paradise.'},
+  {arabic:'وَاذْكُر رَّبَّكَ إِذَا نَسِيتَ', translation:'And remember your Lord when you forget.'},
+];
+function getDailyQuote(seed){
+  const rng = seededRandom(String(seed), 'prayerquote');
+  const idx = Math.floor(rng()*PRAYER_REMINDERS.length);
+  return PRAYER_REMINDERS[idx];
+}
+
+/* ============================================================
+   RANKS / TITLES
+   ============================================================ */
+const RANKS = [
+  {min:1,name:'E'},{min:6,name:'D'},{min:12,name:'C'},
+  {min:20,name:'B'},{min:30,name:'A'},{min:40,name:'S'},
+];
+const TITLES = [
+  {min:1,name:'Novice Hunter'},{min:6,name:'Iron Will'},
+  {min:12,name:'Blade of Discipline'},{min:20,name:'Storm Breaker'},
+  {min:30,name:'Monarch of Endurance'},{min:40,name:'Shadow Monarch'},
+];
+function xpNeeded(level){ return 100 + (level-1)*40; }
+function rankForLevel(level){ let r=RANKS[0].name; for(const e of RANKS){ if(level>=e.min) r=e.name; } return r; }
+function titleForLevel(level){ let t=TITLES[0].name; for(const e of TITLES){ if(level>=e.min) t=e.name; } return t; }
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = null;
+
+function defaultState(){
+  const t = todayStr();
+  return {
+    level:1, xp:0,
+    stats:{STR:0,STA:0,VIT:0,AGI:0,DISC:0,INT:0},
+    streak:0, totalDays:0, bestStreak:0,
+    lastCompletedDate:null,
+    programStart: t,
+    todayDate: t,
+    mainDone: [],
+    mainRewardGiven: false,
+    sideQuestsToday: generateSideQuests(t, null),
+    sideDone: [],
+    rareToday: generateRareQuest(t),
+    rareDone: false,
+    reqDone: [],
+    bossDone: [],
+    bossRewardGiven: false,
+    bossCount: 0,
+    history: [],
+    lastRank: 'E',
+    penalty: null,
+    todos: [],   // free-form reminder / to-do notes (not tied to XP), each has a `created` date for age coloring
+    diary: {},   // date -> diary text, one entry per day
+    xpToday: 0,  // net XP gained/lost so far today, recorded into history at rollover
+    expenses: {}, // date -> array of {id, amount, category, time}
+    salah: {},   // date -> {Fajr:bool, Dhuhr:bool, Asr:bool, Maghrib:bool, Isha:bool}
+    weights: {}, // date -> number (kg)
+    gymLog: {},  // date -> {muscle, duration}
+    pendingPrayerWarning: null, // set at rollover if previous day had a missed prayer
+    sleep: {},   // date -> {bed, wake, hours}
+    water: {},   // date -> ml logged
+    waterTarget: 3000,
+    prLog: {},   // date -> [{id, exercise, weight, reps}]
+    personalBests: {}, // exercise -> {weight, reps, date}
+    habitStats: {}, // habit text -> {appeared, completed}
+    lastQuoteDate: null, // last date the daily-brief popup was shown
+    settings: { sound:true, volume:0.7, effects:true, ambient:false }, // visual/audio layer prefs
+    pendingStreakMilestone: null,
+    pendingNewDay: false,
+  };
+}
+
+/* ============================================================
+   RANK EMBLEMS + MOTIVATION QUOTES (visual/comfort additions)
+   ============================================================ */
+const RANK_EMBLEMS = {E:'🔰', D:'⚔️', C:'🛡️', B:'🦅', A:'👑', S:'🐉'};
+const MOTIVATION_QUOTES = [
+  'Discipline is choosing between what you want now and what you want most.',
+  'Small daily gains compound into levels no shortcut can reach.',
+  'The grind you avoid today is the rank you delay tomorrow.',
+  'A Hunter is not defined by one great day, but by every ordinary one.',
+  'Consistency is the real boss fight.',
+  'You do not rise to the level of your goals — you fall to the level of your systems.',
+  'Every checked box is a vote for the person you are becoming.',
+  'Rest is part of the grind, not the opposite of it.',
+  'The System rewards those who show up, not those who feel ready.',
+  'Progress hides in the days that felt uneventful.',
+];
+function getMotivationQuote(seed){
+  const rng = seededRandom(String(seed), 'motivation');
+  return MOTIVATION_QUOTES[Math.floor(rng()*MOTIVATION_QUOTES.length)];
+}
+function getRankEmblem(level){ return RANK_EMBLEMS[rankForLevel(level)] || '🔰'; }
+
+function playTone(freq, duration, type='sine'){
+  try{
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator(); const gain = ctx.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+duration);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(); osc.stop(ctx.currentTime+duration);
+  }catch(e){}
+}
+function sfxCheck(){ playTone(880,0.12); }
+function sfxUncheck(){ playTone(440,0.1); }
+function sfxLevelUp(){ playTone(660,0.15); setTimeout(()=>playTone(880,0.15),120); setTimeout(()=>playTone(1100,0.25),260); }
+function sfxRankUp(){ playTone(440,0.2); setTimeout(()=>playTone(660,0.2),150); setTimeout(()=>playTone(990,0.4),320); }
+function sfxBoss(){ playTone(220,0.25); setTimeout(()=>playTone(330,0.25),180); setTimeout(()=>playTone(550,0.5),380); }
+
+async function loadState(){
+  const raw = await storageGetRaw(STORAGE_KEY);
+  state = raw ? JSON.parse(raw) : defaultState();
+  if(!state.programStart) state.programStart = state.todayDate || todayStr();
+  if(!state.lastRank) state.lastRank = rankForLevel(state.level);
+  if(state.penalty === undefined) state.penalty = null;
+  if(!state.todos) state.todos = [];
+  // backfill: older reminders saved before age-coloring was added won't have `created`
+  state.todos.forEach(t=>{ if(!t.created) t.created = state.todayDate || todayStr(); });
+  if(!state.diary) state.diary = {};
+  if(state.bestStreak === undefined) state.bestStreak = state.streak || 0;
+  if(state.xpToday === undefined) state.xpToday = 0;
+  if(!state.expenses) state.expenses = {};
+  if(!state.salah) state.salah = {};
+  if(!state.weights) state.weights = {};
+  if(!state.gymLog) state.gymLog = {};
+  if(state.pendingPrayerWarning === undefined) state.pendingPrayerWarning = null;
+  if(!state.sleep) state.sleep = {};
+  if(!state.water) state.water = {};
+  if(state.waterTarget === undefined) state.waterTarget = 3000;
+  if(!state.prLog) state.prLog = {};
+  if(!state.personalBests) state.personalBests = {};
+  if(!state.habitStats) state.habitStats = {};
+  if(state.lastQuoteDate === undefined) state.lastQuoteDate = null;
+  if(!state.settings) state.settings = { sound:true, volume:0.7, effects:true, ambient:false };
+  if(state.settings.sound===undefined) state.settings.sound = true;
+  if(state.settings.volume===undefined) state.settings.volume = 0.7;
+  if(state.settings.effects===undefined) state.settings.effects = true;
+  if(state.settings.ambient===undefined) state.settings.ambient = false;
+  if(state.pendingStreakMilestone===undefined) state.pendingStreakMilestone = null;
+  if(state.pendingNewDay===undefined) state.pendingNewDay = false;
+  rolloverDayIfNeeded();
+  render();
+  applySettingsToUI();
+  let popupDelay = 0;
+  if(state.pendingNewDay){
+    state.pendingNewDay = false;
+    saveState();
+    setTimeout(()=>SystemUI.notify({title:'NEW DAY DETECTED', sub:'Daily quests generated', severity:'normal'}), 300);
+    popupDelay = 400;
+  }
+  if(state.pendingStreakMilestone){
+    const ms = state.pendingStreakMilestone;
+    state.pendingStreakMilestone = null;
+    saveState();
+    setTimeout(()=>SystemUI.streakMilestone(ms), popupDelay+300);
+    popupDelay += 3000;
+  }
+  if(state.pendingPrayerWarning){
+    const w = state.pendingPrayerWarning;
+    state.pendingPrayerWarning = null;
+    saveState();
+    popupDelay = 700;
+    setTimeout(()=>{
+      showStatusPopup({
+        title:'⚠ MISSED PRAYER',
+        sub: w.quote ? w.quote.translation : 'Guard your prayers, Hunter.',
+        rows:[{label:'Yesterday missed', value:(w.missed&&w.missed.length)?w.missed.join(', '):'—'}],
+        duration:7000
+      });
+    }, popupDelay);
+    popupDelay += 7200;
+  }
+  if(state.lastQuoteDate !== state.todayDate){
+    state.lastQuoteDate = state.todayDate;
+    saveState();
+    setTimeout(()=>{
+      showStatusPopup({
+        title:'⚔ DAILY BRIEFING',
+        sub: getMotivationQuote(state.todayDate),
+        rows:[{label:'LEVEL', value:state.level},{label:'STREAK', value:state.streak+' days'}],
+        duration:6000
+      });
+    }, popupDelay);
+  }
+}
+async function saveState(){ await storageSetRaw(STORAGE_KEY, JSON.stringify(state)); }
+
+function isSideComplete(){ return state.sideQuestsToday.length>0 && state.sideDone.length >= state.sideQuestsToday.length; }
+function isReqComplete(){ return state.reqDone.length >= DAILY_REQUIREMENTS.length; }
+function isRareResolved(){ return !state.rareToday || state.rareDone; }
+
+function rolloverDayIfNeeded(){
+  const t = todayStr();
+  if(state.todayDate !== t){
+    const wd = weekdayOf(state.todayDate);
+    const wasBossDay = wd===6;
+    const completedYesterday = isMainComplete(); // gym is now a daily quest
+
+    // check whether yesterday's salah were completed, and queue a warning if not
+    const prevDate = state.todayDate;
+    const prevSalahRec = (state.salah && state.salah[prevDate]) || {};
+    const missedPrayers = SALAH_PRAYERS.filter(p=>!prevSalahRec[p]);
+    if(missedPrayers.length > 0){
+      state.pendingPrayerWarning = {
+        date: prevDate,
+        missed: missedPrayers,
+        quote: getDailyQuote(prevDate+'|warn')
+      };
+    }
+
+    // record habit completion stats for the day that's ending
+    if(!state.habitStats) state.habitStats = {};
+    state.sideQuestsToday.forEach(q=>{
+      if(!state.habitStats[q.text]) state.habitStats[q.text] = {appeared:0, completed:0};
+      state.habitStats[q.text].appeared += 1;
+      if(state.sideDone.includes(q.id)) state.habitStats[q.text].completed += 1;
+    });
+
+    const questsCompletedCount = state.mainDone.length + state.sideDone.length + state.reqDone.length + (state.rareDone?1:0);
+
+    state.history.unshift({
+      date: state.todayDate,
+      dayType: 'gym',
+      mainDone: state.mainDone.length,
+      mainTotal: mainWorkoutTotal(),
+      mainCompleted: completedYesterday,
+      bossCompleted: wasBossDay ? (state.bossDone.length >= BOSS_QUEST.exercises.length) : null,
+      sideDone: state.sideDone.length,
+      sideTotal: state.sideQuestsToday.length,
+      reqDone: state.reqDone.length,
+      reqTotal: DAILY_REQUIREMENTS.length,
+      rareCompleted: state.rareToday ? state.rareDone : null,
+      completed: questsCompletedCount,
+      xp: state.xpToday || 0,
+      level: state.level,
+    });
+    state.history = state.history.slice(0,90);
+    state.xpToday = 0;
+
+    if(completedYesterday){
+      state.totalDays += 1;
+      if(state.lastCompletedDate === dayBefore(state.todayDate) || state.lastCompletedDate === null){
+        state.streak += 1;
+      } else {
+        state.streak = 1;
+      }
+      state.lastCompletedDate = state.todayDate;
+      state.penalty = null;
+    } else {
+      state.streak = 0;
+      state.penalty = {task:{name:'Penalty: 5km Run + 100 Burpees'}, done:false};
+    }
+    if(state.streak > (state.bestStreak||0)) state.bestStreak = state.streak;
+
+    // visual-layer only: queue a streak-milestone notification, doesn't affect streak logic
+    if([3,7,14,30,60,100].includes(state.streak)){
+      state.pendingStreakMilestone = state.streak;
+    }
+    state.pendingNewDay = true;
+
+    state.todayDate = t;
+    state.mainDone = [];
+    state.mainRewardGiven = false;
+    state.sideQuestsToday = generateSideQuests(t, state.sideQuestsToday.map(q=>q.text));
+    state.sideDone = [];
+    state.rareToday = generateRareQuest(t);
+    state.rareDone = false;
+    state.reqDone = [];
+    if(weekdayOf(t) !== 6){ state.bossDone = []; state.bossRewardGiven = false; }
+    // salah, reminders, weight and gym log are keyed/dated independently — nothing to reset here.
+  }
+}
+
+function addXp(amount){
+  state.xp += amount;
+  state.xpToday = (state.xpToday||0) + amount;
+  if(state.xp<0) state.xp = 0;
+  checkLevelUp();
+}
+function addStat(key, amount){
+  if(state.stats[key]===undefined) state.stats[key]=0;
+  state.stats[key]+=amount;
+}
+
+function checkLevelUp(){
+  let leveled = false;
+  while(state.xp >= xpNeeded(state.level)){
+    state.xp -= xpNeeded(state.level);
+    state.level += 1;
+    leveled = true;
+  }
+  if(leveled){
+    showStatusPopup({
+      title:'LEVEL UP',
+      big:'LV. '+state.level,
+      sub:'A NEW LEVEL BEGINS',
+      rows:[
+        {label:'XP', value: state.xp+' / '+xpNeeded(state.level)},
+        {label:'RANK', value: rankForLevel(state.level)},
+      ]
+    });
+    sfxLevelUp();
+    const newRank = rankForLevel(state.level);
+    if(newRank !== state.lastRank){
+      const from = state.lastRank;
+      state.lastRank = newRank;
+      setTimeout(()=>showRankUp(from, newRank), 900);
+    }
+  }
+}
+let popupHideTimer = null;
+function showStatusPopup(opts){
+  const overlay = document.getElementById('statusPopupOverlay');
+  document.getElementById('popupTitle').textContent = opts.title || 'SYSTEM';
+  const bigEl = document.getElementById('popupBig');
+  if(opts.big){ bigEl.textContent = opts.big; bigEl.style.display = 'block'; }
+  else { bigEl.style.display = 'none'; }
+  document.getElementById('popupSub').textContent = opts.sub || '';
+  const rowsEl = document.getElementById('popupRows');
+  rowsEl.innerHTML = (opts.rows||[]).map(r=>
+    `<div class="status-popup-row"><span class="lbl">${r.label}</span><span class="val">${r.value}</span></div>`
+  ).join('');
+  overlay.classList.add('show');
+  if(popupHideTimer) clearTimeout(popupHideTimer);
+  popupHideTimer = setTimeout(hideStatusPopup, opts.duration || 3000);
+}
+function hideStatusPopup(){
+  document.getElementById('statusPopupOverlay').classList.remove('show');
+  if(popupHideTimer){ clearTimeout(popupHideTimer); popupHideTimer=null; }
+}
+function showToast(title, sub){ showStatusPopup({title, sub}); }
+function showRankUp(from, to){
+  sfxRankUp();
+  const ov = document.getElementById('rankupOverlay');
+  document.getElementById('rankupBig').textContent = from+' → '+to;
+  ov.classList.add('show');
+  setTimeout(()=>ov.classList.remove('show'), 3200);
+}
+
+/* ---- toggle handlers ---- */
+function toggleMainExercise(id){
+  const idx = state.mainDone.indexOf(id);
+  if(idx>=0){ state.mainDone.splice(idx,1); sfxUncheck(); } else { state.mainDone.push(id); sfxCheck(); }
+
+  const nowComplete = isMainComplete();
+  if(nowComplete && !state.mainRewardGiven){
+    Object.entries(GYM_REWARD).forEach(([k,v])=>{ addStat(k,v); addXp(v); });
+    state.mainRewardGiven = true;
+    showStatusPopup({
+      title:'QUEST COMPLETE',
+      sub: 'GYM SESSION LOGGED',
+      rows: Object.entries(GYM_REWARD).map(([k,v])=>({label:k, value:'+'+v}))
+    });
+  } else if(!nowComplete && state.mainRewardGiven){
+    Object.entries(GYM_REWARD).forEach(([k,v])=>{ addStat(k,-v); addXp(-v); });
+    state.mainRewardGiven = false;
+  }
+  checkAllDailyComplete();
+  saveState(); render();
+}
+function toggleSideQuest(id){
+  const idx = state.sideDone.indexOf(id);
+  const q = state.sideQuestsToday.find(q=>q.id===id);
+  if(!q) return;
+  if(idx>=0){ state.sideDone.splice(idx,1); addStat(q.stat,-q.xp); addXp(-q.xp); sfxUncheck(); }
+  else { state.sideDone.push(id); addStat(q.stat,q.xp); addXp(q.xp); sfxCheck(); }
+  checkAllDailyComplete();
+  saveState(); render();
+}
+function toggleRareQuest(){
+  if(!state.rareToday) return;
+  if(state.rareDone){ state.rareDone=false; addXp(-state.rareToday.xp); sfxUncheck(); }
+  else {
+    state.rareDone=true; addXp(state.rareToday.xp); sfxCheck();
+    showStatusPopup({title:'RARE QUEST CLEARED', sub:state.rareToday.text, rows:[{label:'BONUS XP', value:'+'+state.rareToday.xp}]});
+  }
+  checkAllDailyComplete();
+  saveState(); render();
+}
+function toggleReq(id){
+  const idx = state.reqDone.indexOf(id);
+  if(idx>=0){ state.reqDone.splice(idx,1); addStat('DISC',-REQ_XP); addXp(-REQ_XP); sfxUncheck(); }
+  else { state.reqDone.push(id); addStat('DISC',REQ_XP); addXp(REQ_XP); sfxCheck(); }
+  checkAllDailyComplete();
+  saveState(); render();
+}
+function toggleBoss(name){
+  const idx = state.bossDone.indexOf(name);
+  if(idx>=0){ state.bossDone.splice(idx,1); sfxUncheck(); } else { state.bossDone.push(name); sfxCheck(); }
+  const nowComplete = state.bossDone.length >= BOSS_QUEST.exercises.length;
+  if(nowComplete && !state.bossRewardGiven){
+    Object.entries(BOSS_QUEST.reward).forEach(([k,v])=>{ if(k==='XP') addXp(v); else addStat(k,v); });
+    state.bossRewardGiven = true;
+    state.bossCount += 1;
+    showStatusPopup({
+      title:'BOSS DEFEATED',
+      sub:'WEEKEND BOSS CLEARED',
+      rows: Object.entries(BOSS_QUEST.reward).map(([k,v])=>({label:k, value:'+'+v})).concat([{label:'BOSSES DEFEATED', value:state.bossCount}])
+    });
+    sfxBoss();
+  } else if(!nowComplete && state.bossRewardGiven){
+    Object.entries(BOSS_QUEST.reward).forEach(([k,v])=>{ if(k==='XP') addXp(-v); else addStat(k,-v); });
+    state.bossRewardGiven = false;
+    state.bossCount = Math.max(0, state.bossCount-1);
+  }
+  saveState(); render();
+}
+function togglePenalty(){
+  if(!state.penalty) return;
+  state.penalty.done = !state.penalty.done;
+  if(state.penalty.done){ setTimeout(()=>{ state.penalty=null; saveState(); render(); }, 900); }
+  saveState(); render();
+}
+
+/* ---- Reminders / To-Do list — plain notes, not tied to XP or stats.
+   Each note remembers the date it was created so the UI can color it
+   from green (fresh) to dark red (5+ days old and still unchecked). ---- */
+function addTodo(){
+  const input = document.getElementById('todoInput');
+  const text = input.value.trim();
+  if(!text) return;
+  state.todos.push({id:'todo'+Date.now(), text, done:false, created: state.todayDate});
+  input.value = '';
+  saveState(); render();
+}
+function toggleTodo(id){
+  const item = state.todos.find(t=>t.id===id);
+  if(!item) return;
+  item.done = !item.done;
+  saveState(); render();
+}
+function deleteTodo(id, ev){
+  if(ev) ev.stopPropagation();
+  state.todos = state.todos.filter(t=>t.id!==id);
+  saveState(); render();
+}
+
+// Age-based color: green the day it's added, fading to dark red by day 5+ if still unchecked.
+function reminderAgeColor(days){
+  const t = Math.min(Math.max(days,0)/5, 1);
+  const from = {r:58,  g:199, b:99};  // fresh green
+  const to   = {r:150, g:20,  b:20};  // stale dark red
+  const r = Math.round(from.r + (to.r-from.r)*t);
+  const g = Math.round(from.g + (to.g-from.g)*t);
+  const b = Math.round(from.b + (to.b-from.b)*t);
+  return { border:`rgb(${r},${g},${b})`, bg:`rgba(${r},${g},${b},0.14)`, solid:`rgb(${r},${g},${b})` };
+}
+
+/* ---- Daily Diary — one free-text note per calendar day. Fully separate
+   from XP/quests. "View All" opens the archive of every past entry. ---- */
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+function saveDiary(){
+  const input = document.getElementById('diaryInput');
+  const text = input.value.trim();
+  if(!state.diary) state.diary = {};
+  if(text){ state.diary[state.todayDate] = text; }
+  else { delete state.diary[state.todayDate]; }
+  saveState();
+  const statusEl = document.getElementById('diaryStatus');
+  if(statusEl) statusEl.textContent = text ? 'Saved for today' : '';
+  if(text) showToast('DIARY SAVED', state.todayDate);
+}
+function deleteDiaryEntry(date){
+  if(state.diary && state.diary[date]!==undefined){
+    delete state.diary[date];
+    saveState();
+    renderDiaryArchive();
+    if(date === state.todayDate){
+      const input = document.getElementById('diaryInput');
+      if(input) input.value = '';
+      const statusEl = document.getElementById('diaryStatus');
+      if(statusEl) statusEl.textContent = '';
+    }
+  }
+}
+function openDiaryArchive(){
+  renderDiaryArchive();
+  document.getElementById('diaryOverlay').classList.add('show');
+}
+function closeDiaryArchive(){
+  document.getElementById('diaryOverlay').classList.remove('show');
+}
+function renderDiaryArchive(){
+  const list = document.getElementById('diaryArchiveList');
+  const dates = Object.keys(state.diary||{}).sort().reverse();
+  if(!dates.length){
+    list.innerHTML = '<div class="empty-msg">No diary entries yet. Write about today from the main page.</div>';
+    return;
+  }
+  list.innerHTML = dates.map(d=>`
+    <div class="diary-entry">
+      <div class="diary-entry-head">
+        <span class="hist-date">${d}</span>
+        <span class="todo-del" onclick="deleteDiaryEntry('${d}')">✕</span>
+      </div>
+      <div class="diary-entry-text">${escapeHtml(state.diary[d])}</div>
+    </div>
+  `).join('');
+}
+
+/* ---- Daily Expenses — free amount + category per entry, grouped by day.
+   Fully separate from XP/quests, like Reminders and Diary. ---- */
+function toggleExpenseOtherInput(){
+  const sel = document.getElementById('expenseCategory');
+  const other = document.getElementById('expenseOtherInput');
+  if(!sel || !other) return;
+  other.style.display = sel.value === 'Other' ? 'block' : 'none';
+}
+function addExpense(){
+  const amountEl = document.getElementById('expenseAmount');
+  const catEl = document.getElementById('expenseCategory');
+  const otherEl = document.getElementById('expenseOtherInput');
+  const amount = parseFloat(amountEl.value);
+  if(!amount || amount<=0) return;
+  let category = catEl.value;
+  if(category === 'Other'){
+    const custom = otherEl.value.trim();
+    if(custom) category = custom;
+  }
+  if(!state.expenses) state.expenses = {};
+  if(!state.expenses[state.todayDate]) state.expenses[state.todayDate] = [];
+  state.expenses[state.todayDate].push({
+    id: 'exp'+Date.now(),
+    amount,
+    category,
+    time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})
+  });
+  amountEl.value = '';
+  otherEl.value = '';
+  otherEl.style.display = 'none';
+  catEl.value = 'Food';
+  saveState(); render();
+}
+function deleteExpense(date, id){
+  if(state.expenses && state.expenses[date]){
+    state.expenses[date] = state.expenses[date].filter(e=>e.id!==id);
+    if(state.expenses[date].length===0) delete state.expenses[date];
+    saveState(); render();
+    if(document.getElementById('expenseOverlay').classList.contains('show')) renderExpensePage();
+  }
+}
+function todayExpenseList(){ return (state.expenses && state.expenses[state.todayDate]) || []; }
+function todayExpenseTotal(){ return todayExpenseList().reduce((s,e)=>s+e.amount,0); }
+
+function openExpenses(){
+  renderExpensePage();
+  document.getElementById('expenseOverlay').classList.add('show');
+}
+function closeExpenses(){
+  document.getElementById('expenseOverlay').classList.remove('show');
+}
+function renderExpensePage(){
+  const expenses = state.expenses || {};
+  const dates = Object.keys(expenses).sort().reverse();
+  const todayTotal = todayExpenseTotal();
+  const monthPrefix = state.todayDate.slice(0,7); // YYYY-MM
+  let monthTotal = 0, allTimeTotal = 0;
+  dates.forEach(d=>{
+    const dayTotal = expenses[d].reduce((s,e)=>s+e.amount,0);
+    allTimeTotal += dayTotal;
+    if(d.startsWith(monthPrefix)) monthTotal += dayTotal;
+  });
+
+  const grid = document.getElementById('expenseSummaryGrid');
+  grid.innerHTML = `
+    <div class="stat-box"><div class="stat-name">TODAY</div><div class="stat-val">₹${todayTotal.toFixed(0)}</div></div>
+    <div class="stat-box"><div class="stat-name">THIS MONTH</div><div class="stat-val">₹${monthTotal.toFixed(0)}</div></div>
+    <div class="stat-box"><div class="stat-name">ALL-TIME</div><div class="stat-val">₹${allTimeTotal.toFixed(0)}</div></div>
+    <div class="stat-box"><div class="stat-name">DAYS LOGGED</div><div class="stat-val">${dates.length}</div></div>
+  `;
+
+  const list = document.getElementById('expenseHistoryList');
+  if(!dates.length){
+    list.innerHTML = '<div class="empty-msg">No expenses logged yet. Add one from the main page.</div>';
+    return;
+  }
+  list.innerHTML = dates.map(d=>{
+    const entries = expenses[d];
+    const dayTotal = entries.reduce((s,e)=>s+e.amount,0);
+    const byCat = {};
+    entries.forEach(e=>{ byCat[e.category] = (byCat[e.category]||0) + e.amount; });
+    const breakdown = Object.entries(byCat).map(([c,v])=>`${c}: ₹${v.toFixed(0)}`).join(' · ');
+    return `<div class="expense-day-row">
+      <div class="expense-day-head"><span class="d">${d}</span><span class="t">₹${dayTotal.toFixed(0)}</span></div>
+      <div class="expense-day-breakdown">${breakdown}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ---- Salah tracker — 5 daily prayers, checkable, resets each calendar
+   day (like a new to-do list every day). History kept per date so the
+   VIEW PROGRESS page can show streaks and a heatmap. ---- */
+function todaySalah(){
+  if(!state.salah) state.salah = {};
+  if(!state.salah[state.todayDate]) state.salah[state.todayDate] = {};
+  return state.salah[state.todayDate];
+}
+function toggleSalah(name){
+  const rec = todaySalah();
+  rec[name] = !rec[name];
+  saveState(); render();
+}
+function salahCountForDate(date){
+  const rec = (state.salah && state.salah[date]) || {};
+  return SALAH_PRAYERS.reduce((c,p)=> c + (rec[p] ? 1 : 0), 0);
+}
+function openSalahProgress(){
+  renderSalahProgress();
+  document.getElementById('salahOverlay').classList.add('show');
+}
+function closeSalahProgress(){
+  document.getElementById('salahOverlay').classList.remove('show');
+}
+function renderSalahProgress(){
+  const dates = Object.keys(state.salah||{}).sort().reverse();
+  const totalDaysLogged = dates.filter(d=>salahCountForDate(d)>0).length;
+  const perfectDays = dates.filter(d=>salahCountForDate(d)>=SALAH_PRAYERS.length).length;
+  const totalPrayers = dates.reduce((s,d)=>s+salahCountForDate(d),0);
+
+  // current streak: consecutive days (ending today or yesterday) with all 5 completed
+  let streak = 0;
+  let cursor = state.todayDate;
+  while(true){
+    const count = salahCountForDate(cursor);
+    if(count >= SALAH_PRAYERS.length){ streak++; cursor = dayBefore(cursor); }
+    else if(cursor === state.todayDate){ cursor = dayBefore(cursor); continue; }
+    else break;
+  }
+
+  const grid = document.getElementById('salahSummaryGrid');
+  grid.innerHTML = `
+    <div class="stat-box"><div class="stat-name">TODAY</div><div class="stat-val">${salahCountForDate(state.todayDate)} / ${SALAH_PRAYERS.length}</div></div>
+    <div class="stat-box"><div class="stat-name">CURRENT STREAK</div><div class="stat-val">${streak}</div></div>
+    <div class="stat-box"><div class="stat-name">PERFECT DAYS</div><div class="stat-val">${perfectDays}</div></div>
+    <div class="stat-box"><div class="stat-name">DAYS LOGGED</div><div class="stat-val">${totalDaysLogged}</div></div>
+    <div class="stat-box"><div class="stat-name">TOTAL PRAYERS</div><div class="stat-val">${totalPrayers}</div></div>
+  `;
+
+  const allDates = [...new Set([...dates, state.todayDate])].sort();
+  const recent = allDates.slice(-45);
+  const heat = document.getElementById('salahHeatmap');
+  heat.innerHTML = recent.map(d=>{
+    const c = salahCountForDate(d);
+    let lvl=0;
+    if(c>=1) lvl=1;
+    if(c>=3) lvl=2;
+    if(c>=5) lvl=3;
+    return `<div class="heat-cell" data-lvl="${lvl}" title="${d}: ${c}/${SALAH_PRAYERS.length}"></div>`;
+  }).join('');
+
+  const list = document.getElementById('salahHistoryList');
+  if(!dates.length){
+    list.innerHTML = '<div class="empty-msg">No salah logged yet. Check off prayers from the main page.</div>';
+    return;
+  }
+  list.innerHTML = dates.map(d=>{
+    const rec = state.salah[d] || {};
+    const done = SALAH_PRAYERS.filter(p=>rec[p]);
+    const missed = SALAH_PRAYERS.filter(p=>!rec[p]);
+    return `<div class="hist-row" style="flex-direction:column;align-items:stretch;gap:4px;">
+      <div style="display:flex;justify-content:space-between;">
+        <span class="hist-date">${d}</span>
+        <span class="hist-xp">${done.length} / ${SALAH_PRAYERS.length}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);">
+        ${done.length ? '✓ '+done.join(', ') : 'None completed'}${missed.length ? ' &nbsp;·&nbsp; ✗ '+missed.join(', ') : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ---- Daily Weight — one weigh-in per calendar day. Fully separate from
+   XP/quests, like Reminders/Diary/Expenses. "View Progress" shows a
+   summary plus a simple SVG trend line built from your history. ---- */
+function saveWeight(){
+  const input = document.getElementById('weightInput');
+  const val = parseFloat(input.value);
+  if(!val || val<=0) return;
+  if(!state.weights) state.weights = {};
+  state.weights[state.todayDate] = val;
+  input.value = '';
+  saveState(); render();
+  showToast('WEIGHT LOGGED', val+' kg — '+state.todayDate);
+}
+function deleteWeightEntry(date){
+  if(state.weights && state.weights[date]!==undefined){
+    delete state.weights[date];
+    saveState(); render();
+    if(document.getElementById('weightOverlay').classList.contains('show')) renderWeightProgress();
+  }
+}
+function openWeightProgress(){
+  renderWeightProgress();
+  document.getElementById('weightOverlay').classList.add('show');
+}
+function closeWeightProgress(){
+  document.getElementById('weightOverlay').classList.remove('show');
+}
+function renderWeightChart(){
+  const container = document.getElementById('weightChartContainer');
+  const entries = Object.entries(state.weights||{}).sort((a,b)=> a[0]<b[0]?-1:1).slice(-30);
+  if(entries.length < 2){
+    container.innerHTML = '<div class="empty-msg">Log your weight on at least 2 different days to see a trend graph.</div>';
+    return;
+  }
+  const values = entries.map(e=>e[1]);
+  const min = Math.min(...values), max = Math.max(...values);
+  const pad = (max-min)*0.15 || 1;
+  const lo = min-pad, hi = max+pad;
+  const W = 600, H = 200, ML=36, MR=10, MT=14, MB=24;
+  const plotW = W-ML-MR, plotH = H-MT-MB;
+  const pts = entries.map((e,i)=>{
+    const x = ML + (entries.length===1?0:(i/(entries.length-1))*plotW);
+    const y = MT + plotH - ((e[1]-lo)/(hi-lo))*plotH;
+    return [x,y];
+  });
+  const pathD = pts.map((p,i)=> (i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const areaD = pathD + ` L${pts[pts.length-1][0].toFixed(1)},${(MT+plotH).toFixed(1)} L${pts[0][0].toFixed(1)},${(MT+plotH).toFixed(1)} Z`;
+  const dots = pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="var(--glow)"><title>${entries[i][0]}: ${entries[i][1]}kg</title></circle>`).join('');
+  container.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;">
+      <line x1="${ML}" y1="${MT}" x2="${ML}" y2="${MT+plotH}" stroke="var(--line)" stroke-width="1"/>
+      <line x1="${ML}" y1="${MT+plotH}" x2="${W-MR}" y2="${MT+plotH}" stroke="var(--line)" stroke-width="1"/>
+      <text x="2" y="${MT+5}" font-size="9" fill="var(--text-dim)">${hi.toFixed(1)}</text>
+      <text x="2" y="${MT+plotH}" font-size="9" fill="var(--text-dim)">${lo.toFixed(1)}</text>
+      <path d="${areaD}" fill="rgba(63,208,255,.08)" stroke="none"/>
+      <path d="${pathD}" fill="none" stroke="var(--glow)" stroke-width="2"/>
+      ${dots}
+    </svg>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);margin-top:4px;">
+      <span>${entries[0][0]}</span><span>${entries[entries.length-1][0]}</span>
+    </div>
+  `;
+}
+function renderWeightProgress(){
+  const dates = Object.keys(state.weights||{}).sort();
+  const grid = document.getElementById('weightSummaryGrid');
+  if(!dates.length){
+    grid.innerHTML = '<div class="empty-msg">No weight logged yet.</div>';
+  } else {
+    const current = state.weights[dates[dates.length-1]];
+    const first = state.weights[dates[0]];
+    const values = dates.map(d=>state.weights[d]);
+    const min = Math.min(...values), max = Math.max(...values);
+    const weekAgoDate = dayBefore7(state.todayDate);
+    let weekAgoVal = null;
+    for(let i=dates.length-1;i>=0;i--){ if(dates[i] <= weekAgoDate){ weekAgoVal = state.weights[dates[i]]; break; } }
+    const change7 = weekAgoVal!==null ? (current-weekAgoVal) : null;
+    const sinceStart = current-first;
+    grid.innerHTML = `
+      <div class="stat-box"><div class="stat-name">CURRENT</div><div class="stat-val">${current}kg</div></div>
+      <div class="stat-box"><div class="stat-name">7-DAY CHANGE</div><div class="stat-val">${change7===null?'—':(change7>=0?'+':'')+change7.toFixed(1)}</div></div>
+      <div class="stat-box"><div class="stat-name">MIN</div><div class="stat-val">${min}kg</div></div>
+      <div class="stat-box"><div class="stat-name">MAX</div><div class="stat-val">${max}kg</div></div>
+      <div class="stat-box"><div class="stat-name">SINCE START</div><div class="stat-val">${(sinceStart>=0?'+':'')+sinceStart.toFixed(1)}</div></div>
+      <div class="stat-box"><div class="stat-name">DAYS LOGGED</div><div class="stat-val">${dates.length}</div></div>
+    `;
+  }
+  renderWeightChart();
+  const list = document.getElementById('weightHistoryList');
+  if(!dates.length){
+    list.innerHTML = '<div class="empty-msg">No weight logged yet. Add today\'s weight from the main page.</div>';
+    return;
+  }
+  list.innerHTML = dates.slice().reverse().map(d=>`
+    <div class="hist-row"><span class="hist-date">${d}</span><span style="display:flex;align-items:center;gap:10px;"><span class="hist-xp">${state.weights[d]}kg</span><span class="todo-del" onclick="deleteWeightEntry('${d}')">✕</span></span></div>
+  `).join('');
+}
+
+/* ---- Daily Sleep — bedtime/wake time in, hours calculated automatically.
+   Same pattern as Weight: main-page quick log + a Progress page with a
+   trend graph built the same way. ---- */
+function computeSleepHours(bed, wake){
+  if(!bed || !wake) return null;
+  const [bh,bm] = bed.split(':').map(Number);
+  const [wh,wm] = wake.split(':').map(Number);
+  let bedMin = bh*60+bm, wakeMin = wh*60+wm;
+  if(wakeMin <= bedMin) wakeMin += 24*60; // slept past midnight
+  return Math.round(((wakeMin-bedMin)/60)*10)/10;
+}
+function saveSleep(){
+  const bedEl = document.getElementById('sleepBedInput');
+  const wakeEl = document.getElementById('sleepWakeInput');
+  const bed = bedEl.value, wake = wakeEl.value;
+  const hours = computeSleepHours(bed, wake);
+  if(hours===null) return;
+  if(!state.sleep) state.sleep = {};
+  state.sleep[state.todayDate] = {bed, wake, hours};
+  saveState(); render();
+  showToast('SLEEP LOGGED', hours+' hrs — '+state.todayDate);
+}
+function deleteSleepEntry(date){
+  if(state.sleep && state.sleep[date]!==undefined){
+    delete state.sleep[date];
+    saveState(); render();
+    if(document.getElementById('sleepOverlay').classList.contains('show')) renderSleepProgress();
+  }
+}
+function openSleepProgress(){ renderSleepProgress(); document.getElementById('sleepOverlay').classList.add('show'); }
+function closeSleepProgress(){ document.getElementById('sleepOverlay').classList.remove('show'); }
+function renderGenericLineChart(containerId, entries, unit, color){
+  const container = document.getElementById(containerId);
+  if(entries.length < 2){
+    container.innerHTML = '<div class="empty-msg">Log at least 2 different days to see a trend graph.</div>';
+    return;
+  }
+  const values = entries.map(e=>e[1]);
+  const min = Math.min(...values), max = Math.max(...values);
+  const pad = (max-min)*0.15 || 1;
+  const lo = min-pad, hi = max+pad;
+  const W = 600, H = 200, ML=36, MR=10, MT=14, MB=24;
+  const plotW = W-ML-MR, plotH = H-MT-MB;
+  const pts = entries.map((e,i)=>{
+    const x = ML + (entries.length===1?0:(i/(entries.length-1))*plotW);
+    const y = MT + plotH - ((e[1]-lo)/(hi-lo))*plotH;
+    return [x,y];
+  });
+  const pathD = pts.map((p,i)=> (i===0?'M':'L')+p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const areaD = pathD + ` L${pts[pts.length-1][0].toFixed(1)},${(MT+plotH).toFixed(1)} L${pts[0][0].toFixed(1)},${(MT+plotH).toFixed(1)} Z`;
+  const dots = pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3" fill="${color}"><title>${entries[i][0]}: ${entries[i][1]}${unit}</title></circle>`).join('');
+  container.innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block;">
+      <line x1="${ML}" y1="${MT}" x2="${ML}" y2="${MT+plotH}" stroke="var(--line)" stroke-width="1"/>
+      <line x1="${ML}" y1="${MT+plotH}" x2="${W-MR}" y2="${MT+plotH}" stroke="var(--line)" stroke-width="1"/>
+      <text x="2" y="${MT+5}" font-size="9" fill="var(--text-dim)">${hi.toFixed(1)}</text>
+      <text x="2" y="${MT+plotH}" font-size="9" fill="var(--text-dim)">${lo.toFixed(1)}</text>
+      <path d="${areaD}" fill="${color}22" stroke="none"/>
+      <path d="${pathD}" fill="none" stroke="${color}" stroke-width="2"/>
+      ${dots}
+    </svg>
+    <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);margin-top:4px;">
+      <span>${entries[0][0]}</span><span>${entries[entries.length-1][0]}</span>
+    </div>
+  `;
+}
+function renderSleepProgress(){
+  const dates = Object.keys(state.sleep||{}).sort();
+  const grid = document.getElementById('sleepSummaryGrid');
+  if(!dates.length){
+    grid.innerHTML = '<div class="empty-msg">No sleep logged yet.</div>';
+  } else {
+    const hoursArr = dates.map(d=>state.sleep[d].hours);
+    const avg = hoursArr.reduce((s,v)=>s+v,0)/hoursArr.length;
+    const min = Math.min(...hoursArr), max = Math.max(...hoursArr);
+    const last = state.sleep[dates[dates.length-1]].hours;
+    grid.innerHTML = `
+      <div class="stat-box"><div class="stat-name">LAST NIGHT</div><div class="stat-val">${last}h</div></div>
+      <div class="stat-box"><div class="stat-name">AVERAGE</div><div class="stat-val">${avg.toFixed(1)}h</div></div>
+      <div class="stat-box"><div class="stat-name">MIN</div><div class="stat-val">${min}h</div></div>
+      <div class="stat-box"><div class="stat-name">MAX</div><div class="stat-val">${max}h</div></div>
+      <div class="stat-box"><div class="stat-name">NIGHTS LOGGED</div><div class="stat-val">${dates.length}</div></div>
+    `;
+  }
+  const entries = dates.map(d=>[d, state.sleep[d].hours]).slice(-30);
+  renderGenericLineChart('sleepChartContainer', entries, 'h', 'var(--pink)');
+  const list = document.getElementById('sleepHistoryList');
+  if(!dates.length){
+    list.innerHTML = '<div class="empty-msg">No sleep logged yet. Add it from the main page.</div>';
+    return;
+  }
+  list.innerHTML = dates.slice().reverse().map(d=>{
+    const e = state.sleep[d];
+    return `<div class="hist-row"><span class="hist-date">${d}</span><span style="display:flex;align-items:center;gap:10px;"><span class="hist-xp">${e.hours}h (${e.bed||'—'}→${e.wake||'—'})</span><span class="todo-del" onclick="deleteSleepEntry('${d}')">✕</span></span></div>`;
+  }).join('');
+}
+
+/* ---- Daily Water — quick-add buttons toward a target, resets each
+   calendar day like the other date-keyed logs. ---- */
+function todayWater(){ return (state.water && state.water[state.todayDate]) || 0; }
+function addWater(ml){
+  if(!state.water) state.water = {};
+  state.water[state.todayDate] = todayWater() + ml;
+  saveState(); render();
+}
+function resetWater(){
+  if(!state.water) state.water = {};
+  state.water[state.todayDate] = 0;
+  saveState(); render();
+}
+
+/* ---- Strength Log — free-form set log (exercise, weight, reps) with
+   automatic personal-best tracking per exercise. ---- */
+function addPR(){
+  const exEl = document.getElementById('prExercise');
+  const wEl = document.getElementById('prWeight');
+  const rEl = document.getElementById('prReps');
+  const exercise = exEl.value.trim();
+  const weight = parseFloat(wEl.value);
+  const reps = parseInt(rEl.value, 10);
+  if(!exercise || !weight || !reps) return;
+  if(!state.prLog) state.prLog = {};
+  if(!state.prLog[state.todayDate]) state.prLog[state.todayDate] = [];
+  state.prLog[state.todayDate].push({id:'pr'+Date.now(), exercise, weight, reps});
+
+  if(!state.personalBests) state.personalBests = {};
+  const key = exercise.toLowerCase();
+  const best = state.personalBests[key];
+  let isNewPR = false;
+  if(!best || weight > best.weight || (weight === best.weight && reps > best.reps)){
+    state.personalBests[key] = {exercise, weight, reps, date: state.todayDate};
+    isNewPR = true;
+  }
+  exEl.value=''; wEl.value=''; rEl.value='';
+  saveState(); render();
+  if(isNewPR){
+    showStatusPopup({title:'NEW PR', sub:exercise, rows:[{label:'Weight', value:weight+'kg'},{label:'Reps', value:reps}], duration:4000});
+    sfxLevelUp();
+  } else {
+    showToast('SET LOGGED', exercise+' — '+weight+'kg × '+reps);
+  }
+}
+function deletePR(date, id){
+  if(state.prLog && state.prLog[date]){
+    state.prLog[date] = state.prLog[date].filter(p=>p.id!==id);
+    if(state.prLog[date].length===0) delete state.prLog[date];
+    saveState(); render();
+    if(document.getElementById('prOverlay').classList.contains('show')) renderPRProgress();
+  }
+}
+function openPRProgress(){ renderPRProgress(); document.getElementById('prOverlay').classList.add('show'); }
+function closePRProgress(){ document.getElementById('prOverlay').classList.remove('show'); }
+function renderPRProgress(){
+  const bests = Object.values(state.personalBests||{}).sort((a,b)=>b.weight-a.weight);
+  const bestsList = document.getElementById('prBestsList');
+  if(!bests.length){
+    bestsList.innerHTML = '<div class="empty-msg">No sets logged yet. Add one from the main page.</div>';
+  } else {
+    bestsList.innerHTML = bests.map(b=>`
+      <div class="pr-row best"><div class="pr-ex">${b.exercise}</div><div class="pr-val">${b.weight}kg × ${b.reps} <span style="color:var(--text-dim);font-weight:400;">(${b.date})</span></div></div>
+    `).join('');
+  }
+  const dates = Object.keys(state.prLog||{}).sort().reverse();
+  const histList = document.getElementById('prHistoryList');
+  if(!dates.length){
+    histList.innerHTML = '<div class="empty-msg">No sets logged yet.</div>';
+    return;
+  }
+  histList.innerHTML = dates.map(d=>{
+    const sets = state.prLog[d].map(s=>`
+      <div class="pr-row"><div class="pr-ex">${s.exercise}</div><div class="pr-val">${s.weight}kg × ${s.reps}<span class="todo-del" onclick="deletePR('${d}','${s.id}')" style="margin-left:8px;">✕</span></div></div>
+    `).join('');
+    return `<div style="margin-bottom:10px;"><div class="hist-date" style="font-size:12px;margin-bottom:6px;">${d}</div>${sets}</div>`;
+  }).join('');
+}
+
+/* ---- Habit Stats — completion rate for each rotating side quest,
+   based on appearances vs completions tracked at day rollover. ---- */
+function openHabitStats(){ renderHabitStats(); document.getElementById('habitOverlay').classList.add('show'); }
+function closeHabitStats(){ document.getElementById('habitOverlay').classList.remove('show'); }
+function renderHabitStats(){
+  const stats = state.habitStats || {};
+  const entries = Object.entries(stats).filter(([,v])=>v.appeared>0)
+    .sort((a,b)=> (b[1].completed/b[1].appeared) - (a[1].completed/a[1].appeared));
+  const list = document.getElementById('habitStatsList');
+  if(!entries.length){
+    list.innerHTML = '<div class="empty-msg">No habit history yet — stats build up as side quests rotate through your days.</div>';
+    return;
+  }
+  list.innerHTML = entries.map(([text,v])=>{
+    const pct = Math.round((v.completed/v.appeared)*100);
+    return `<div class="habit-row">
+      <div class="habit-row-head"><span>${text}</span><span class="pct">${pct}% <span style="color:var(--text-dim);font-weight:400;">(${v.completed}/${v.appeared})</span></span></div>
+      <div class="habit-bar-outer"><div class="habit-bar-inner" style="width:${pct}%;"></div></div>
+    </div>`;
+  }).join('');
+}
+
+/* ---- Export — dumps the entire state as a downloadable JSON file. ---- */
+function exportData(){
+  try{
+    const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'the-system-backup-'+state.todayDate+'.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  }catch(e){ console.error('export failed', e); }
+}
+
+/* ---- Daily Gym Log — optional free-text note of what you trained and
+   for how long. Separate from the checklist XP/stat rewards above. ---- */
+function saveGymLog(){
+  const muscleEl = document.getElementById('gymMuscleInput');
+  const durEl = document.getElementById('gymDurationInput');
+  const muscle = muscleEl.value.trim();
+  const duration = durEl.value;
+  if(!state.gymLog) state.gymLog = {};
+  if(muscle || duration){ state.gymLog[state.todayDate] = {muscle, duration}; }
+  else { delete state.gymLog[state.todayDate]; }
+  saveState();
+  const statusEl = document.getElementById('gymLogStatus');
+  if(statusEl) statusEl.textContent = (muscle||duration) ? 'Saved for today' : '';
+}
+
+/* ---- Progress Page — deep dive into full history, separate from the
+   main page's compact "Quest Log History" panel. ---- */
+function openProgress(){
+  renderProgressPage();
+  document.getElementById('progressOverlay').classList.add('show');
+}
+function closeProgress(){
+  document.getElementById('progressOverlay').classList.remove('show');
+}
+function renderProgressPage(){
+  const grid = document.getElementById('progressSummaryGrid');
+  grid.innerHTML = `
+    <div class="stat-box"><div class="stat-name">LEVEL</div><div class="stat-val">${state.level}</div></div>
+    <div class="stat-box"><div class="stat-name">RANK</div><div class="stat-val">${rankForLevel(state.level)}</div></div>
+    <div class="stat-box"><div class="stat-name">TOTAL DAYS</div><div class="stat-val">${state.totalDays}</div></div>
+    <div class="stat-box"><div class="stat-name">CURRENT STREAK</div><div class="stat-val">${state.streak}</div></div>
+    <div class="stat-box"><div class="stat-name">BEST STREAK</div><div class="stat-val">${state.bestStreak||0}</div></div>
+    <div class="stat-box"><div class="stat-name">BOSSES BEATEN</div><div class="stat-val">${state.bossCount}</div></div>
+  `;
+
+  const heat = document.getElementById('progressHeatmap');
+  const recent = state.history.slice(0,45).slice().reverse();
+  heat.innerHTML = recent.map(h=>{
+    let lvl=0;
+    if(h.completed>=1) lvl=1;
+    if(h.completed>=5) lvl=2;
+    if(h.completed>=9) lvl=3;
+    return `<div class="heat-cell" data-lvl="${lvl}" title="${h.date}: ${h.completed} quests"></div>`;
+  }).join('');
+
+  const list = document.getElementById('progressHistoryList');
+  if(!state.history.length){
+    list.innerHTML = '<div class="empty-msg">No completed days yet. Your full history builds up here day by day.</div>';
+    return;
+  }
+  list.innerHTML = state.history.map(h=>{
+    const typeLabel = 'GYM DAY' + (h.bossCompleted!==null ? (h.bossCompleted?' + BOSS ✓':' + BOSS ✗') : '');
+    const mainBit = `Gym ${h.mainDone}/${h.mainTotal} ${h.mainCompleted?'✓ complete':'✗ incomplete'}`;
+    return `<div class="hist-row" style="flex-direction:column;align-items:stretch;gap:4px;">
+      <div style="display:flex;justify-content:space-between;">
+        <span class="hist-date">${h.date} — ${typeLabel}</span>
+        <span class="hist-xp">${(h.xp||0)>=0?'+':''}${h.xp||0} XP</span>
+      </div>
+      <div style="font-size:11px;color:var(--text-dim);">
+        ${mainBit} · Side ${h.sideDone}/${h.sideTotal} · Reqs ${h.reqDone}/${h.reqTotal}${h.rareCompleted?' · ★ Rare cleared':''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+let dailyBonusGiven = false;
+function checkAllDailyComplete(){
+  const mainOk = isMainComplete();
+  if(mainOk && isSideComplete() && isReqComplete() && isRareResolved() && !dailyBonusGiven){
+    dailyBonusGiven = true;
+    addXp(50);
+    showStatusPopup({
+      title:'ALL QUESTS CLEARED',
+      sub:'THE SYSTEM COMMENDS YOUR DISCIPLINE',
+      rows:[{label:'BONUS XP', value:'+50'}]
+    });
+  }
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){
+  document.getElementById('lvlNum').textContent = state.level;
+  document.getElementById('rankBadge').textContent = rankForLevel(state.level);
+  document.getElementById('rankEmblem').textContent = getRankEmblem(state.level);
+  document.getElementById('titleTag').textContent = titleForLevel(state.level);
+  const need = xpNeeded(state.level);
+  document.getElementById('xpText').textContent = state.xp+' / '+need;
+  document.getElementById('xpBar').style.width = Math.min(100,(state.xp/need)*100)+'%';
+
+  const statsGrid = document.getElementById('statsGrid');
+  const labels = {STR:'STR',STA:'STA',VIT:'VIT',AGI:'AGI',DISC:'DISC',INT:'INT'};
+  statsGrid.innerHTML = Object.keys(labels).map(k=>
+    `<div class="stat-box"><div class="stat-name">${labels[k]}</div><div class="stat-val">${state.stats[k]||0}</div></div>`
+  ).join('');
+
+  document.getElementById('streakNum').textContent = state.streak;
+  document.getElementById('totalDays').textContent = state.totalDays;
+
+  const penaltyPanel = document.getElementById('penaltyPanel');
+  if(state.penalty){
+    penaltyPanel.style.display = 'block';
+    const done = state.penalty.done;
+    document.getElementById('penaltyQuestSlot').innerHTML =
+      `<div class="quest penalty ${done?'done':''}" onclick="togglePenalty()">
+        <div class="quest-check">${done?'✓':''}</div>
+        <div class="quest-name">${state.penalty.task.name}</div>
+        <div class="quest-meta">PENALTY</div>
+      </div>`;
+  } else {
+    penaltyPanel.style.display = 'none';
+  }
+
+  const wd = weekdayOf(state.todayDate);
+  document.getElementById('weekTag').textContent = 'STREAK '+state.streak;
+  const dayNames = ['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+  const mainList = document.getElementById('mainQuestList');
+  const dayBanner = document.getElementById('dayBanner');
+  const dayTitle = document.getElementById('dayTitle');
+
+  dayTitle.textContent = "TODAY'S GYM SESSION";
+  dayBanner.textContent = dayNames[wd] + ' — GYM DAY';
+  mainList.innerHTML = GYM_QUEST_ITEMS.map(item=>{
+    const done = state.mainDone.includes(item.id);
+    return `<div class="quest ${done?'done':''}" onclick="toggleMainExercise('${item.id}')">
+      <div class="quest-check">${done?'✓':''}</div>
+      <div class="quest-name">${item.name}</div>
+    </div>`;
+  }).join('') + `<div class="boss-reward-row"><span>Reward</span><span>${Object.entries(GYM_REWARD).map(([k,v])=>'+'+v+' '+k).join('  ')}</span></div>`;
+
+  const gymMuscleEl = document.getElementById('gymMuscleInput');
+  const gymDurEl = document.getElementById('gymDurationInput');
+  const gymLogToday = (state.gymLog && state.gymLog[state.todayDate]) || {};
+  if(gymMuscleEl && document.activeElement!==gymMuscleEl) gymMuscleEl.value = gymLogToday.muscle||'';
+  if(gymDurEl && document.activeElement!==gymDurEl) gymDurEl.value = gymLogToday.duration||'';
+  const gymLogStatusEl = document.getElementById('gymLogStatus');
+  if(gymLogStatusEl) gymLogStatusEl.textContent = (gymLogToday.muscle||gymLogToday.duration) ? 'Saved for today' : '';
+
+  const sideList = document.getElementById('sideQuestList');
+  let sideHtml = state.sideQuestsToday.map(q=>{
+    const done = state.sideDone.includes(q.id);
+    return `<div class="quest ${done?'done':''}" onclick="toggleSideQuest('${q.id}')">
+      <div class="quest-check">${done?'✓':''}</div>
+      <div class="quest-name">${q.text}</div>
+      <div class="quest-meta">${q.cat}</div>
+      <div class="quest-xp">+${q.xp}xp</div>
+    </div>`;
+  }).join('');
+  if(state.rareToday){
+    const rdone = state.rareDone;
+    sideHtml += `<div class="quest rare ${rdone?'done':''}" onclick="toggleRareQuest()">
+      <div class="quest-check">${rdone?'✓':''}</div>
+      <div class="quest-name">★ RARE: ${state.rareToday.text}</div>
+      <div class="quest-xp">+${state.rareToday.xp}xp</div>
+    </div>`;
+  }
+  sideList.innerHTML = sideHtml;
+
+  const reqList = document.getElementById('reqList');
+  reqList.innerHTML = DAILY_REQUIREMENTS.map(r=>{
+    const done = state.reqDone.includes(r.id);
+    return `<div class="quest ${done?'done':''}" onclick="toggleReq('${r.id}')">
+      <div class="quest-check">${done?'✓':''}</div>
+      <div class="quest-name">${r.text}</div>
+      <div class="quest-xp">+${REQ_XP}xp</div>
+    </div>`;
+  }).join('');
+
+  // daily salah checklist
+  const salahListEl = document.getElementById('salahList');
+  const salahRec = todaySalah();
+  salahListEl.innerHTML = SALAH_PRAYERS.map(p=>{
+    const done = !!salahRec[p];
+    return `<div class="quest salah ${done?'done':''}" onclick="toggleSalah('${p}')">
+      <div class="quest-check">${done?'✓':''}</div>
+      <div class="quest-name">${p}</div>
+    </div>`;
+  }).join('');
+  const salahCountEl = document.getElementById('salahTodayCount');
+  if(salahCountEl) salahCountEl.textContent = salahCountForDate(state.todayDate)+' / '+SALAH_PRAYERS.length;
+
+  // live prayer reminder banner — shows in the evening if prayers are still pending today
+  const prayerPanel = document.getElementById('prayerWarnPanel');
+  const salahDoneToday = salahCountForDate(state.todayDate);
+  const hourNow = new Date().getHours();
+  if(salahDoneToday < SALAH_PRAYERS.length && hourNow >= 20){
+    const missingToday = SALAH_PRAYERS.filter(p=>!salahRec[p]);
+    const q = getDailyQuote(state.todayDate);
+    prayerPanel.style.display = 'block';
+    document.getElementById('prayerWarnText').innerHTML =
+      `You still have ${missingToday.length} prayer(s) left today: <b>${missingToday.join(', ')}</b>.<br><br>"${q.translation}"`;
+  } else {
+    prayerPanel.style.display = 'none';
+  }
+
+  // daily weight
+  const weightTodayEl = document.getElementById('weightTodayVal');
+  if(weightTodayEl) weightTodayEl.textContent = (state.weights && state.weights[state.todayDate]!==undefined) ? state.weights[state.todayDate]+' kg' : '— kg';
+
+  // daily sleep
+  const sleepTodayEl = document.getElementById('sleepTodayVal');
+  const sleepToday = state.sleep && state.sleep[state.todayDate];
+  if(sleepTodayEl) sleepTodayEl.textContent = sleepToday ? sleepToday.hours+' hrs' : '— hrs';
+  const sleepBedEl = document.getElementById('sleepBedInput');
+  const sleepWakeEl = document.getElementById('sleepWakeInput');
+  if(sleepBedEl && document.activeElement!==sleepBedEl) sleepBedEl.value = sleepToday ? (sleepToday.bed||'') : '';
+  if(sleepWakeEl && document.activeElement!==sleepWakeEl) sleepWakeEl.value = sleepToday ? (sleepToday.wake||'') : '';
+
+  // daily water
+  const waterMl = todayWater();
+  const waterTarget = state.waterTarget || 3000;
+  const waterCountEl = document.getElementById('waterCount');
+  if(waterCountEl) waterCountEl.textContent = waterMl+' / '+waterTarget+'ml';
+  const waterBarEl = document.getElementById('waterBar');
+  if(waterBarEl) waterBarEl.style.width = Math.min(100, (waterMl/waterTarget)*100)+'%';
+
+  // today's strength sets
+  const prTodayListEl = document.getElementById('prTodayList');
+  if(prTodayListEl){
+    const todaySets = (state.prLog && state.prLog[state.todayDate]) || [];
+    if(!todaySets.length){
+      prTodayListEl.innerHTML = '<div class="empty-msg">No sets logged today yet.</div>';
+    } else {
+      prTodayListEl.innerHTML = todaySets.map(s=>`
+        <div class="pr-row"><div class="pr-ex">${s.exercise}</div><div class="pr-val">${s.weight}kg × ${s.reps}<span class="todo-del" onclick="deletePR('${state.todayDate}','${s.id}')" style="margin-left:8px;">✕</span></div></div>
+      `).join('');
+    }
+  }
+
+  // quick status strip
+  const qsEl = document.getElementById('quickStrip');
+  if(qsEl){
+    const gymOk = isMainComplete();
+    const salahOkCount = salahDoneToday;
+    const items = [
+      {label:'GYM', val: gymOk?'✓':state.mainDone.length+'/'+mainWorkoutTotal(), ok:gymOk},
+      {label:'SALAH', val: salahOkCount+'/'+SALAH_PRAYERS.length, ok: salahOkCount>=SALAH_PRAYERS.length},
+      {label:'WATER', val: Math.round((waterMl/waterTarget)*100)+'%', ok: waterMl>=waterTarget},
+      {label:'WEIGHT', val: (state.weights&&state.weights[state.todayDate]!==undefined)?'✓':'—', ok: state.weights&&state.weights[state.todayDate]!==undefined},
+    ];
+    qsEl.innerHTML = items.map(it=>`<div class="qs-item ${it.ok?'ok':'pending'}"><div class="qs-val">${it.val}</div>${it.label}</div>`).join('');
+  }
+
+  // reminders / to-do — colored by age (green → dark red) while unchecked
+  const todoCountEl = document.getElementById('todoCount');
+  const todoPending = state.todos.filter(t=>!t.done).length;
+  todoCountEl.textContent = state.todos.length ? (todoPending+' PENDING') : '';
+  const todoList = document.getElementById('todoList');
+  if(state.todos.length===0){
+    todoList.innerHTML = '<div class="empty-msg">No reminders yet. Note something below and check it off when done.</div>';
+  } else {
+    todoList.innerHTML = state.todos.map(t=>{
+      const created = t.created || state.todayDate;
+      const age = Math.max(0, daysBetween(created, state.todayDate));
+      let styleAttr = '', checkStyleAttr = '', ageLabel = '';
+      if(!t.done){
+        const c = reminderAgeColor(age);
+        styleAttr = `style="border-color:${c.border};background:${c.bg};"`;
+        checkStyleAttr = `style="border-color:${c.solid};color:${c.solid};"`;
+        ageLabel = `<div class="todo-age">${age===0 ? 'today' : age+'d old'}</div>`;
+      }
+      return `<div class="quest todo ${t.done?'done':''}" ${styleAttr} onclick="toggleTodo('${t.id}')">
+        <div class="quest-check" ${checkStyleAttr}>${t.done?'✓':''}</div>
+        <div class="quest-name">${t.text}</div>
+        ${ageLabel}
+        <div class="todo-del" onclick="deleteTodo('${t.id}', event)">✕</div>
+      </div>`;
+    }).join('');
+  }
+
+  // daily diary — keep the textarea untouched while the user is typing in it
+  const diaryInputEl = document.getElementById('diaryInput');
+  if(diaryInputEl && document.activeElement !== diaryInputEl){
+    diaryInputEl.value = (state.diary && state.diary[state.todayDate]) || '';
+  }
+  const diaryStatusEl = document.getElementById('diaryStatus');
+  if(diaryStatusEl){
+    diaryStatusEl.textContent = (state.diary && state.diary[state.todayDate]) ? 'Saved for today' : '';
+  }
+
+  // daily expenses
+  const expenseTotalEl = document.getElementById('expenseTodayTotal');
+  if(expenseTotalEl) expenseTotalEl.textContent = '₹'+todayExpenseTotal().toFixed(0);
+  const expenseListEl = document.getElementById('expenseList');
+  if(expenseListEl){
+    const list = todayExpenseList();
+    if(!list.length){
+      expenseListEl.innerHTML = '<div class="empty-msg">No expenses logged today yet.</div>';
+    } else {
+      expenseListEl.innerHTML = list.map(e=>`
+        <div class="expense-item">
+          <div class="exp-cat">${e.category}</div>
+          <div class="exp-time">${e.time||''}</div>
+          <div class="exp-amt">₹${e.amount.toFixed(0)}</div>
+          <div class="todo-del" onclick="deleteExpense('${state.todayDate}','${e.id}')">✕</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  const bossSlot = document.getElementById('bossSlot');
+  const bossPanelEl = document.getElementById('bossPanel');
+  if(wd===6){
+    if(bossPanelEl) bossPanelEl.classList.add('boss-active');
+    bossSlot.innerHTML = BOSS_QUEST.exercises.map(ex=>{
+      const done = state.bossDone.includes(ex.name);
+      return `<div class="quest ${done?'done':''}" onclick="toggleBoss('${ex.name}')">
+        <div class="quest-check">${done?'✓':''}</div>
+        <div class="quest-name">${ex.name}</div>
+      </div>`;
+    }).join('') + `<div class="boss-reward-row"><span>Reward</span><span>${Object.entries(BOSS_QUEST.reward).map(([k,v])=>'+'+v+' '+k).join('  ')}</span></div>`;
+  } else {
+    if(bossPanelEl) bossPanelEl.classList.remove('boss-active');
+    bossSlot.innerHTML = '<div class="boss-locked">Boss Quest unlocks every Saturday.</div>';
+  }
+  document.getElementById('bossCount').textContent = state.bossCount;
+
+  const heatmap = document.getElementById('heatmap');
+  const recent = state.history.slice(0,45).slice().reverse();
+  heatmap.innerHTML = recent.map(h=>{
+    let lvl=0;
+    if(h.completed>=1) lvl=1;
+    if(h.completed>=5) lvl=2;
+    if(h.completed>=9) lvl=3;
+    return `<div class="heat-cell" data-lvl="${lvl}" title="${h.date}: ${h.completed} quests"></div>`;
+  }).join('');
+
+  const historyList = document.getElementById('historyList');
+  const withActivity = state.history.filter(h=>h.completed>0);
+  if(withActivity.length===0){
+    historyList.innerHTML = '<div class="empty-msg">Your quest history will appear here after your first full day.</div>';
+  } else {
+    historyList.innerHTML = withActivity.slice(0,30).map(h=>
+      `<div class="hist-row"><span class="hist-date">${h.date}</span><span>${h.completed} quests cleared</span></div>`
+    ).join('');
+  }
+}
+
+/* ============================================================
+   VISUAL LAYER — boot sequence, SystemSound, UIEffects, SystemUI,
+   settings. Everything below is additive: it reads/writes only
+   state.settings and cosmetic DOM, and wraps a few existing
+   functions to add notifications/micro-interactions without
+   altering their underlying logic or return values.
+   ============================================================ */
+
+/* respect the OS-level reduced-motion preference */
+if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+  document.body.classList.add('reduced-motion');
+}
+document.addEventListener('visibilitychange', ()=>{
+  document.body.classList.toggle('tab-hidden', document.hidden);
+});
+
+/* ---- Sound engine: lightweight Web Audio synthesis, no external assets ---- */
+const SystemSound = {
+  ctx: null,
+  ensureCtx(){
+    if(!this.ctx){
+      try{ this.ctx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ this.ctx = null; }
+    }
+    return this.ctx;
+  },
+  isEnabled(){ return !!(state && state.settings && state.settings.sound); },
+  vol(){ return state && state.settings && state.settings.volume!==undefined ? state.settings.volume : 0.7; },
+  tone(freq, duration, type, gainMul){
+    if(!this.isEnabled()) return;
+    const ctx = this.ensureCtx();
+    if(!ctx) return;
+    try{
+      const osc = ctx.createOscillator(); const gain = ctx.createGain();
+      osc.type = type||'sine'; osc.frequency.value = freq;
+      const g = 0.15 * this.vol() * (gainMul===undefined?1:gainMul);
+      gain.gain.setValueAtTime(g, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+duration);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime+duration);
+    }catch(e){}
+  },
+  play(name){
+    switch(name){
+      case 'click': this.tone(520,0.05,'square',0.5); break;
+      case 'panelOpen': this.tone(660,0.08,'sine',0.6); break;
+      case 'panelClose': this.tone(420,0.07,'sine',0.5); break;
+      case 'questComplete': this.tone(880,0.12,'sine',1); break;
+      case 'questUndo': this.tone(440,0.1,'sine',1); break;
+      case 'xpGain': this.tone(760,0.08,'triangle',0.5); break;
+      case 'questFailed': this.tone(200,0.2,'sawtooth',0.6); break;
+      case 'levelUp': this.tone(660,0.15); setTimeout(()=>this.tone(880,0.15),120); setTimeout(()=>this.tone(1100,0.25),260); break;
+      case 'rankUp': this.tone(440,0.2); setTimeout(()=>this.tone(660,0.2),150); setTimeout(()=>this.tone(990,0.4),320); break;
+      case 'achievement': this.tone(520,0.15); setTimeout(()=>this.tone(780,0.2),140); break;
+      case 'notify': this.tone(600,0.06,'sine',0.5); break;
+      case 'warning': this.tone(320,0.18,'square',0.5); break;
+      case 'error': this.tone(180,0.22,'sawtooth',0.6); break;
+      case 'bootUp': this.tone(500,0.1,'sine',0.4); break;
+      case 'bossUnlock': this.tone(300,0.2,'triangle'); setTimeout(()=>this.tone(500,0.2,'triangle'),160); break;
+      case 'bossDefeated': this.tone(220,0.25); setTimeout(()=>this.tone(330,0.25),180); setTimeout(()=>this.tone(550,0.5),380); break;
+      case 'rareReward': this.tone(880,0.15,'triangle'); setTimeout(()=>this.tone(1200,0.2,'triangle'),140); break;
+      case 'milestone': this.tone(500,0.15); setTimeout(()=>this.tone(750,0.15),140); setTimeout(()=>this.tone(1000,0.3),300); break;
+      default: this.tone(600,0.08,'sine',1);
+    }
+  }
+};
+
+/* ---- Micro-interaction helpers ---- */
+const UIEffects = {
+  effectsOn(){ return !!(state && state.settings && state.settings.effects) && !document.body.classList.contains('reduced-motion'); },
+  pulse(el){
+    if(!el || !this.effectsOn()) return;
+    el.classList.remove('burst'); void el.offsetWidth; el.classList.add('burst');
+    setTimeout(()=>el.classList.remove('burst'), 420);
+  },
+  particles(el){
+    if(!el || !this.effectsOn()) return;
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left+rect.width/2, cy = rect.top+rect.height/2;
+    for(let i=0;i<5;i++){
+      const p = document.createElement('div');
+      p.className = 'mini-particle';
+      const angle = (Math.PI*2*i)/5 + Math.random()*0.5;
+      const dist = 20+Math.random()*16;
+      p.style.setProperty('--dx', Math.cos(angle)*dist+'px');
+      p.style.setProperty('--dy', Math.sin(angle)*dist+'px');
+      p.style.left = cx+'px'; p.style.top = cy+'px';
+      document.body.appendChild(p);
+      setTimeout(()=>p.remove(), 600);
+    }
+  },
+  floatXP(amount, el){
+    if(!el || !amount || !this.effectsOn()) return;
+    const rect = el.getBoundingClientRect();
+    const span = document.createElement('div');
+    span.textContent = (amount>0?'+':'')+amount+' XP';
+    span.style.cssText = 'position:fixed;left:'+(rect.left+rect.width/2)+'px;top:'+rect.top+'px;transform:translateX(-50%);'+
+      'color:'+(amount>0?'var(--gold)':'var(--danger)')+';font-size:12px;font-weight:700;font-family:inherit;'+
+      'pointer-events:none;z-index:125;transition:all .8s ease;opacity:1;';
+    document.body.appendChild(span);
+    requestAnimationFrame(()=>{ span.style.top = (rect.top-40)+'px'; span.style.opacity = '0'; });
+    setTimeout(()=>span.remove(), 850);
+  }
+};
+
+/* ---- Notification engine: small stacking toasts + hooks into the
+   existing centered popup for major (level/rank/boss/milestone) events ---- */
+let __toastSeq = 0;
+const SystemUI = {
+  notify({title, sub, severity, duration}){
+    severity = severity || 'normal';
+    duration = duration || 3200;
+    const stack = document.getElementById('toastStack');
+    if(!stack) return;
+    const el = document.createElement('div');
+    el.className = 'toast' + (severity==='normal' ? '' : ' '+severity);
+    el.id = 'toast'+(__toastSeq++);
+    el.innerHTML = '<div class="t-title">'+title+'</div>'+(sub?'<div class="t-sub">'+sub+'</div>':'')+
+      '<div class="t-bar" style="animation-duration:'+duration+'ms;"></div>';
+    stack.appendChild(el);
+    while(stack.children.length>4) stack.removeChild(stack.firstChild);
+    SystemSound.play(severity==='danger'?'error':severity==='warning'?'warning':'notify');
+    setTimeout(()=>{
+      el.style.animation = 'toastOut .3s ease forwards';
+      setTimeout(()=>el.remove(), 320);
+    }, duration);
+  },
+  showAchievement(name, sub){
+    showStatusPopup({title:'ACHIEVEMENT UNLOCKED', big:name, sub:sub||'A new mark of discipline', duration:4500});
+    SystemSound.play('achievement');
+  },
+  streakMilestone(days){
+    showStatusPopup({title:'STREAK MILESTONE', big:days+' DAYS', sub:'THE SYSTEM RECOGNIZES YOUR CONSISTENCY', duration:4500});
+    SystemSound.play('milestone');
+  }
+};
+
+/* ---- Settings: sound / effects / ambient mode / volume, persisted
+   in state.settings via the existing storage layer ---- */
+function applySettingsToUI(){
+  const s = state.settings;
+  const soundEl = document.getElementById('setSoundToggle');
+  const effectsEl = document.getElementById('setEffectsToggle');
+  const ambientEl = document.getElementById('setAmbientToggle');
+  const volEl = document.getElementById('setVolumeRange');
+  const rmEl = document.getElementById('setReducedMotionVal');
+  if(soundEl) soundEl.classList.toggle('on', !!s.sound);
+  if(effectsEl) effectsEl.classList.toggle('on', !!s.effects);
+  if(ambientEl) ambientEl.classList.toggle('on', !!s.ambient);
+  if(volEl) volEl.value = Math.round((s.volume||0)*100);
+  document.body.classList.toggle('ambient-mode', !!s.ambient);
+  if(rmEl) rmEl.textContent = document.body.classList.contains('reduced-motion') ? 'ON (system)' : 'OFF (system)';
+}
+function toggleSetting(key){
+  state.settings[key] = !state.settings[key];
+  saveState();
+  applySettingsToUI();
+  SystemSound.play('click');
+}
+function setVolume(val){
+  state.settings.volume = Math.max(0, Math.min(1, val/100));
+  saveState();
+}
+
+/* tap feedback on any quest-style row, purely visual, no logic touched */
+document.addEventListener('click', function(e){
+  const q = e.target.closest('.quest');
+  if(q) UIEffects.pulse(q);
+}, true);
+
+/* ---- Small non-invasive wraps: fire a toast on top of the existing
+   toggle functions without changing what they compute or store ---- */
+const __origToggleSideQuest = toggleSideQuest;
+toggleSideQuest = function(id){
+  const wasDone = state.sideDone.includes(id);
+  const q = state.sideQuestsToday.find(sq=>sq.id===id);
+  __origToggleSideQuest(id);
+  if(!wasDone && q && state.sideDone.includes(id)){
+    SystemUI.notify({title:'SIDE QUEST CLEARED', sub:q.text+' · +'+q.xp+' XP', severity:'success', duration:2600});
+  }
+};
+const __origToggleReq = toggleReq;
+toggleReq = function(id){
+  const wasDone = state.reqDone.includes(id);
+  __origToggleReq(id);
+  if(!wasDone && state.reqDone.includes(id)){
+    SystemUI.notify({title:'SYSTEM', sub:'+'+REQ_XP+' XP acquired', duration:2000});
+  }
+};
+const __origToggleSalah = toggleSalah;
+toggleSalah = function(name){
+  const wasDone = !!todaySalah()[name];
+  __origToggleSalah(name);
+  if(!wasDone && todaySalah()[name]){
+    const count = salahCountForDate(state.todayDate);
+    SystemUI.notify({title:'SYSTEM', sub:name+' completed · '+count+' / '+SALAH_PRAYERS.length+' prayers', severity:'success', duration:2400});
+  }
+};
+
+/* ---- XP counter: smooth count-up instead of an instant number swap.
+   The XP bar already animates via CSS transition; this only animates
+   the text next to it. Wraps render() without touching its logic. ---- */
+let __lastXPDisplay = null;
+const __origRender = render;
+render = function(){
+  __origRender();
+  const xpTextEl = document.getElementById('xpText');
+  if(xpTextEl && UIEffects.effectsOn()){
+    const need = xpNeeded(state.level);
+    const target = state.xp;
+    const start = __lastXPDisplay===null ? target : __lastXPDisplay;
+    if(start !== target){
+      const t0 = performance.now();
+      const dur = 500;
+      (function step(now){
+        const p = Math.min(1, (now-t0)/dur);
+        const val = Math.round(start + (target-start)*p);
+        xpTextEl.textContent = val+' / '+need;
+        if(p<1) requestAnimationFrame(step);
+      })(t0);
+    }
+  }
+  __lastXPDisplay = state.xp;
+};
+
+/* ---- Boot sequence: ~1.3s cinematic init on load, then reveal the
+   already-rendered dashboard underneath. Does not delay data loading —
+   runs in parallel with loadState(). ---- */
+function runBootSequence(){
+  return new Promise(resolve=>{
+    const linesEl = document.getElementById('bootLines');
+    const barEl = document.getElementById('bootBar');
+    if(!linesEl || !barEl){ resolve(); return; }
+    if(document.body.classList.contains('reduced-motion')){
+      barEl.style.transition = 'none';
+    }
+    barEl.style.width = '100%';
+    const messages = ['INITIALIZING SYSTEM...','LOADING USER DATA...','SYNCING QUEST DATABASE...','CALIBRATING ATTRIBUTES...','SYSTEM ONLINE'];
+    let i = 0;
+    function next(){
+      if(i>0 && linesEl.children[i-1]) linesEl.children[i-1].classList.add('done');
+      if(i>=messages.length){ resolve(); return; }
+      const div = document.createElement('div');
+      div.className = 'boot-line' + (i===messages.length-1 ? ' final' : '');
+      div.textContent = messages[i];
+      linesEl.appendChild(div);
+      i++;
+      setTimeout(next, i>=messages.length ? 260 : 220);
+    }
+    next();
+  });
+}
+
+async function init(){
+  const bootPromise = runBootSequence();
+  await loadState();
+  await bootPromise;
+  const bootEl = document.getElementById('bootOverlay');
+  if(bootEl){
+    bootEl.classList.add('hide');
+    setTimeout(()=>bootEl.remove(), 550);
+  }
+}
+init();
+</script>
+</body>
+</html>
